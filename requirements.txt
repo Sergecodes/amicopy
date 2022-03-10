@@ -1,0 +1,9 @@
+Django==3.2.12
+python-decouple==3.6
+psycopg2-binary==2.9.3
+django-storages==1.12.3
+boto3==1.21.16
+django-grappelli==3.0.3
+django-extensions==3.1.5
+shortuuid==1.0.8
+django-filter==21.1
