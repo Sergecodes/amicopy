@@ -182,4 +182,5 @@ cython_debug/
 # run  git rm --cached -r __pycache__/
 
 docker-compose.yaml
+data/
 amicopy connection.session.sql
