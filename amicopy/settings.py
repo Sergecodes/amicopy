@@ -1,4 +1,4 @@
-
+import os
 from decouple import config, Csv
 from pathlib import Path
 
@@ -120,17 +120,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Third-party apps
-	'django_extensions',
-	
 	# Project apps
-	'users',
 	'core',
-	'transactions',
-	'flagging',
 	'notifications',
 	'subscriptions',
+	'transactions',
+	'users',
 
+    # Third-party apps
+	'ckeditor',
+	'django_extensions',
+	
 ]
 
 MIDDLEWARE = [
@@ -197,15 +197,14 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Caching TODO use memcached in production!! (even before production!)
-# (it is the best cache backend that django supports)
-CACHES = {
-	'default': {
-		'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-		'TIMEOUT': 300,  # The default(300s = 5mins)
-		# 'TIMEOUT': 60 * 60 * 24,  # 86400(s)=24h
-	}
-}
+# Caching TODO use redis instead in production!! (even before production!)
+# CACHES = {
+# 	'default': {
+# 		'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+# 		'TIMEOUT': 300,  # The default(300s = 5mins)
+# 		# 'TIMEOUT': 60 * 60 * 24,  # 86400(s)=24h
+# 	}
+# }
 
 
 # Static files (CSS, JavaScript, Images)
@@ -230,18 +229,15 @@ if USE_S3:
 		'CacheControl': 'max-age=86400'
 	}
 	# s3 static settings
-	# STATIC_LOCATION_ = 'static'
 	STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN_}/static/'
 	STATICFILES_STORAGE = 'core.storages.StaticStorage'
-	STATIC_ROOT = 'staticfiles/'
-	# We don't need STATIC_URL here since to upload files, we'll run collectstatic
-	# and all static files will be placed in the STATIC_ROOT folder
+	# STATIC_ROOT isn't needed here
 
 	# s3 public media settings. 
 	# This var is also used in core.storages to set the location of media files
-	PUBLIC_MEDIA_LOCATION_ = 'media'
-	MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN_}/{PUBLIC_MEDIA_LOCATION_}/'
-	MEDIA_ROOT = MEDIA_URL
+	MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN_}/media/'
+	# MEDIA_ROOT isn't also needed here
+	# MEDIA_ROOT = MEDIA_URL
 	DEFAULT_FILE_STORAGE = 'core.storages.PublicMediaStorage'
 
 	# # s3 private media settings
@@ -251,16 +247,58 @@ else:
 	DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'  
 	STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 	STATIC_URL = '/static/'
-	STATIC_ROOT = BASE_DIR / 'staticfiles'
+	STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 	# STATICFILES_DIRS = [
 	# 	BASE_DIR / 'static'
 	# ]
 
 	MEDIA_URL = 'media/'
-	MEDIA_ROOT = BASE_DIR / 'media'
+	MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+## THIRD-PARTY APPS CONFIG
+## ckeditor
+# Plugins: though not all are enabled by default
+# a11yhelp, about, adobeair, ajax, autoembed, autogrow, autolink, bbcode, clipboard, codesnippet,
+# codesnippetgeshi, colordialog, devtools, dialog, div, divarea, docprops, embed, embedbase,
+# embedsemantic, filetools, find, flash, forms, iframe, iframedialog, image, image2, language,
+# lineutils, link, liststyle, magicline, mathjax, menubutton, notification, notificationaggregator,
+# pagebreak, pastefromword, placeholder, preview, scayt, sharedspace, showblocks, smiley,
+# sourcedialog, specialchar, stylesheetparser, table, tableresize, tabletools, templates, uicolor,
+# uploadimage, uploadwidget, widget, wsc, xml
+
+# uploadimage plugin is responsible for image/file upload
+CKEDITOR_CONFIGS = {
+	'default': {
+		'skin': 'moono',
+        # 'skin': 'office2013',
+		'toolbar': 'full',
+		'removePlugins': '',
+		'width': 'auto',
+		# 'extraPlugins': 'codesnippet,clipboard', 
+	},
+	'test': {
+		'skin': 'moono',
+        # 'skin': 'office2013',
+		'toolbar': 'Custom',
+		'toolbar_Custom': [
+			['Bold', 'Italic', ],
+			# codesnippet plugin needs to be loaded for CodeSnippet to work.
+			['Link', 'Blockquote', 'Clipboard', 'CodeSnippet'],
+			['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
+			['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
+			['Undo', 'Redo'],
+			['Maximize', 'Preview']
+		],
+		'tabSpaces': 4,
+		'width': 'auto',
+		# 'uiColor': '#ff3333',
+	},
+}
+

@@ -1,15 +1,16 @@
-from django.contrib.auth.models import AbstractUser, Group, Permission, PermissionsMixin
+from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 from django.utils.functional import classproperty
 from django.utils.translation import gettext_lazy as _
 
-from core.mixins import UsesCustomSignal
-from users.validators import UsernameValidator
+from core.fields import ProperEmailField
+from transactions.models.models import Session, Transaction, TransactionBookmark
+from ..validators import UsernameValidator
 from .managers import UserManager
 from .operations import UserOperations
 
 
-class User(AbstractUser, PermissionsMixin, UserOperations):
+class User(AbstractUser, UserOperations):
     username_validator = UsernameValidator()
     first_name, last_name, date_joined = None, None, None
 
@@ -28,8 +29,7 @@ class User(AbstractUser, PermissionsMixin, UserOperations):
             # null, blank, invalid, invalid_choice, unique, unique_for_date
         },
     )
-    # TODO: UPDATE EMAIL FIELD TO CONVERT @GOOGLEMAIL.COM TO @GMAIL.COM
-    email = models.EmailField(
+    email = ProperEmailField(
         _('email address'),
         unique=True,
         max_length=50,
@@ -43,9 +43,24 @@ class User(AbstractUser, PermissionsMixin, UserOperations):
     # See difference between auto_now_add=True and default=timezone.now:
     # https://stackoverflow.com/questions/59074688/
     # difference-between-auto-now-add-and-timezone-now-as-default-value
-    joined_on = models.DateTimeField(_('date joined'), auto_now_add=True, editable=False)
+    joined_on = models.DateTimeField(_('date joined'), auto_now_add=True)
 
     deactivated_on = models.DateTimeField(null=True, blank=True, editable=False)
+    pinned_session = models.OneToOneField(
+        Session,
+        on_delete=models.SET_NULL,
+        db_column='pinned_session_id',
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    bookmarked_transactions = models.ManyToManyField(
+        Transaction,
+        through=TransactionBookmark,
+        related_name='bookmarkers',
+        related_query_name='bookmarker',
+        blank=True
+    )
 
     # From the PermissionsMixin class, just to update related_name attribute of m2m fields
     groups = models.ManyToManyField(
@@ -70,6 +85,36 @@ class User(AbstractUser, PermissionsMixin, UserOperations):
 
     objects = UserManager()
 
+    @classproperty
+    def staff(cls):
+        return cls.objects.filter(is_staff=True)
+
+    @classproperty
+    def active(cls):
+        return cls.objects.filter(is_active=True)
+
+    @property
+    def existing_devices(self):
+        """
+        Return the devices that haven't been deleted. 
+        All things been normal, devices will never be deleted.
+        """
+        return self.devices.filter(deleted_on__isnull=False)
+
+    @property
+    def has_pinned_session(self):
+        return bool(self.pinned_session)
+
+    @property 
+    def is_premium(self):
+        # TODO
+        pass
+
+    @property
+    def is_golden(self):
+        # TODO
+        pass
+
     def __str__(self):
         return f'{self.username}, {self.email}'
 
@@ -81,14 +126,6 @@ class User(AbstractUser, PermissionsMixin, UserOperations):
         
         self.deactivate()
 
-    @classproperty
-    def staff(cls):
-        return cls.objects.filter(is_staff=True)
-
-    @classproperty
-    def active(cls):
-        return cls.objects.filter(is_active=True)
-
     def clean(self):
         super().clean()
 
@@ -99,6 +136,7 @@ class User(AbstractUser, PermissionsMixin, UserOperations):
         super().save(*args, **kwargs)
             
     def get_absolute_url(self):
+        # TODO
         pass
 
     class Meta:

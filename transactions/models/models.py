@@ -1,6 +1,5 @@
+from ckeditor.fields import RichTextField
 from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils import timezone
@@ -12,12 +11,7 @@ from users.validators import UsernameValidator
 from .managers import DeviceManager
 from .operations import SessionOperations, TransactionOperations, DeviceOperations
 
-User = get_user_model()
-
-
-def get_sentinel_device():
-    """Dummy device used when a device object is deleted"""
-    return Device.objects.get_or_create(username='deleted')[0]
+User = settings.AUTH_USER_MODEL
 
 
 def shared_files_upload_path(instance, filename):
@@ -67,12 +61,20 @@ class Device(models.Model, DeviceOperations):
         return self.display_name
 
     def delete(self):
+        """
+        delete() isn't called if related objects are deleted via CASCADE. 
+        i.e. if a session is deleted, devices will also be deleted.
+        """
         self.deleted_on = timezone.now()
         self.save(update_fields=['deleted_on'])
 
     @cached_property
     def is_deleted(self):
         return bool(self.deleted_on)
+    
+    @cached_property
+    def has_user(self):
+        return bool(self.user)
 
     class Meta:
         db_table = 'transactions\".\"device'
@@ -85,7 +87,7 @@ class Transaction(models.Model, TransactionOperations):
         max_length=100,
         blank=True
     )
-    text_content = models.TextField(
+    text_content = RichTextField(
         _('text'),
         help_text=_('Enter the text to share'),
         blank=True
@@ -105,7 +107,7 @@ class Transaction(models.Model, TransactionOperations):
     )
     from_device = models.ForeignKey(
         Device,
-        on_delete=models.SET(get_sentinel_device),
+        on_delete=models.RESTRICT,
         db_column='from_device_id',
         related_name='sent_transactions',
         related_query_name='sent_transaction'
@@ -124,14 +126,16 @@ class Transaction(models.Model, TransactionOperations):
     )
 
     def __str__(self):
+        # TODO test this method
         if title := self.title:
             return title
 
-        to_devices_names = self.to_devices.values_list(
-            'device__display_name', flat=True
-        ).distinct()
-        return _("From %s to %s") % (self.from_device.title, list(to_devices_names))
+        to_devices_names = self.to_devices.values_list('device__display_name', flat=True)
+        return _("From %s to %s") % (self.from_device.display_name, list(to_devices_names))
 
+    def delete(self):
+        return super().delete()
+    
     class Meta:
         db_table = 'transactions\".\"transaction'
 
@@ -153,8 +157,8 @@ class Session(models.Model, SessionOperations):
         ),
     )
     accepts_new_devices = models.BooleanField(_('accepts new devices'), default=True)
-    last_active_on = models.DateTimeField(default=timezone.now, editable=False)
-    started_on = models.DateTimeField(default=timezone.now, editable=False)
+    last_transaction_on = models.DateTimeField(blank=True, null=True, editable=False)
+    started_on = models.DateTimeField(auto_now_add=True)
     ended_on = models.DateTimeField(null=True, blank=True, editable=False)
     expired_on = models.DateTimeField(null=True, blank=True, editable=False)
     all_devices = models.ManyToManyField(
@@ -165,7 +169,7 @@ class Session(models.Model, SessionOperations):
     )
     creator_device = models.ForeignKey(
         Device,
-        on_delete=models.SET(get_sentinel_device),
+        on_delete=models.RESTRICT,
         db_column='creator_device_id',
         related_name='created_sessions',
         related_query_name='created_session'
@@ -180,9 +184,25 @@ class Session(models.Model, SessionOperations):
     def __str__(self):
         return self.title
 
+    @property
+    def has_creator_code(self):
+        return bool(self.creator_code)
+
+    @property
+    def is_ended(self):
+        return bool(self.ended_on)
+
+    @property
+    def is_expired(self):
+        return bool(self.expired_on)
+
+    @property
+    def is_active(self):
+        return not self.is_ended and not self.is_expired
+
     class Meta:
         db_table = 'transactions\".\"session'
-        contraints = [
+        constraints = [
             models.UniqueConstraint(
                 fields=['uuid'],
                 name='unique_session_uuid'
@@ -206,7 +226,7 @@ class SessionDevices(models.Model):
     device = models.ForeignKey(
         Device,
         db_column='device_id',
-        on_delete=models.SET(get_sentinel_device),
+        on_delete=models.RESTRICT,
         related_name='+'
     )
     # When the device joined the session
@@ -241,6 +261,34 @@ class SessionDelete(models.Model):
         db_table = 'transactions\".\"session_delete'
 
 
+class TransactionBookmark(models.Model):
+	transaction = models.ForeignKey(
+		Transaction,
+		db_column='transaction_id',
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmarker = models.ForeignKey(
+		User,
+		db_column='user_id',
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmarked_on = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return _('Transaction %s bookmarked by %s') % (self.transaction, self.bookmarker)
+	
+	class Meta:
+		db_table = 'transactions\".\"transaction_bookmark'
+		constraints = [
+			models.UniqueConstraint(
+				fields=['transaction', 'bookmarker'],
+				name='unique_transaction_bookmark'
+			),
+		]
+
+
 class TransactionDelete(models.Model):
     transaction = models.ForeignKey(
         Transaction,
@@ -273,7 +321,7 @@ class TransactionToDevices(models.Model):
     device = models.ForeignKey(
         Device,
         db_column='device_id',
-        on_delete=models.SET(get_sentinel_device),
+        on_delete=models.RESTRICT,
         related_name='+'
     )
 

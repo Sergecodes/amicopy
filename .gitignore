@@ -183,4 +183,4 @@ cython_debug/
 
 docker-compose.yaml
 data/
-amicopy connection.session.sql
+amicopy-connection.session.sql

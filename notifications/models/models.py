@@ -10,6 +10,8 @@ from notifications import settings as notifications_settings
 from .operations import NotificationOperations
 
 
+User = settings.AUTH_USER_MODEL
+
 def is_soft_delete():
     return notifications_settings.get_config()['SOFT_DELETE']
 
@@ -167,38 +169,17 @@ class Notification(models.Model, NotificationOperations):
 
     ACCOUNT = 'A'                   # Related to users accounts
     GENERAL = 'G'                   # General notifications
-    MENTION = 'M'                   # To users that were mentioned in a post
-    FLAG = 'F'                      # To users whose post has been flagged 
-                                    # (may be n times, telling them to modify it)
-    FOLLOW = 'FO'                   # When a user follows another user
-    REPORTED = 'R'                  # Moderators only, for reported posts and users
-    RATING = 'RA'                   # When user's post is rated
-    COMMENT = 'C'                   # When a user's post is commented on
-    REPOST = 'RP'                   # When a user's post is retweeted
-    COMMENT_LIKE = 'CL'             # When a user's comment is liked
-    COMMENT_REPLY = 'CR'            # When a reply to a comment is made
-    FLAGGED_CONTENT_DELETED = 'D'   # When a FLAGGED post(or comment) is deleted 
-                                    # (by moderator or automatically)
 
     NOTIFICATION_CATEGORIES = (
         (GENERAL, _('General')),
         (ACCOUNT, _('Account')),
-        (MENTION, _('Mention')),
-        (FLAG, _('Flag')),
-        (FOLLOW, _('Follow')),
-        (REPORTED, _('Reported to moderator or staff')),
-        (RATING, _('Post rating')),
-        (COMMENT, _('Comment')),
-        (REPOST, _('Repost')),
-        (COMMENT_LIKE, _('Comment like')),
-        (COMMENT_REPLY, _('Comment reply')),
-        (FLAGGED_CONTENT_DELETED, _('Flagged content deleted'))
+
     )
 
     level = models.CharField(choices=LEVEL_CODES, default=INFO, max_length=2)
     category = models.CharField(choices=NOTIFICATION_CATEGORIES, max_length=2)
     recipient = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         related_name='notifications',
         related_query_name='notification',
         on_delete=models.CASCADE,
