@@ -1,21 +1,23 @@
-from django.db import models
+from django.db.models import EmailField
+
+from users.models.managers import UserManager
 
 
-class ProperEmailField(models.EmailField):
+class ProperEmailField(EmailField):
     description = "An email field that replaces @googlemail.com to @gmail.com since both are actually the same"
    
     def _parse_value(self, value: str):
-        # Domain part of email should already be in lowercase since email is normalized
-        # before saving
+        value = UserManager.normalize_email(value)
         return value.replace('@googlemail.com', '@gmail.com')
 
-    def get_db_prep_value(self, value, *args, **kwargs):
+    def get_prep_value(self, value):
+        value = super().get_prep_value(value)
         if value is None:
             return None
         return self._parse_value(str(value))
 
     def to_python(self, value):
-        if isinstance(value, str) or value is None:
+        if value is None:
             return value
         return self._parse_value(str(value))
 

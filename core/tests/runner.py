@@ -1,11 +1,13 @@
+"""Create schemas before running tests"""
+
 from django.db import connections
 from django.test.runner import DiscoverRunner
 from types import MethodType
 
 
 SCHEMAS = [
-    'django', 'accounts', 'flagging', 
-    'posts', 'notifications', 'subscriptions'
+    'django', 'users', 'transactions',
+    'notifications', 'subscriptions'
 ]
 
 def prepare_database(self):
@@ -19,7 +21,7 @@ def prepare_database(self):
         )
     self.connection.cursor().execute(
         """
-        SET search_path TO django,accounts,flagging,posts,notifications,subscriptions;
+        SET search_path TO django,users,transactions,notifications,subscriptions;
         """
     )
     

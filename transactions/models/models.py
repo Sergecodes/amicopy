@@ -1,5 +1,7 @@
+import os
 from ckeditor.fields import RichTextField
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils import timezone
@@ -7,29 +9,26 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from shortuuid.django_fields import ShortUUIDField
 
+from core.mixins import UsesCustomSignal
 from users.validators import UsernameValidator
+from ..utils import can_add_device_name
 from .managers import DeviceManager
 from .operations import SessionOperations, TransactionOperations, DeviceOperations
 
+# Using get_user_model() causes circular import errs
 User = settings.AUTH_USER_MODEL
 
 
 def shared_files_upload_path(instance, filename):
 	# instance is Transaction about to be saved.
-    # File will be uploaded to MEDIA_ROOT/users/user_<id>/artist_posts_photos/<filename>
-	# return get_post_media_upload_path(
-	# 	instance.post.porter_id,
-	# 	ARTIST_POST_PHOTO_UPLOAD_DIR,
-	# 	filename
-	# )
-    # TODO
-    pass
+    # File will be uploaded to MEDIA_ROOT/users/device_<id>/<filename>
+    return os.path.join('users/', f'device_{instance.from_device_id}/', filename)
 
 
-class Device(models.Model, DeviceOperations):
+class Device(models.Model, DeviceOperations, UsesCustomSignal):
     display_name_validator = UsernameValidator()
 
-    ip_address = models.GenericIPAddressField()
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
     user = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -40,18 +39,19 @@ class Device(models.Model, DeviceOperations):
         blank=True
     )
     # Used when user issues anonymous transactions
-    browser_session_id = models.CharField(
-        max_length=200,
-        blank=True
-    )
+    browser_session_id = models.CharField(max_length=200, blank=True)
     display_name = models.CharField(
         _('display name'),
         max_length=50,
+        # "Note that validators will not be run automatically when you save a model, 
+        # but if you are using a ModelForm, it will run your validators 
+        # on any fields that are included in your form."
+        # see https://docs.djangoproject.com/en/3.2/ref/validators/#how-validators-are-run
+        validators=[display_name_validator],
         help_text=_(
             'Name used to identify you in this session, '
             'users in this session will be able to see this name.'
         ),
-        validators=[display_name_validator]
     )
     deleted_on = models.DateTimeField(null=True, blank=True, editable=False)
 
@@ -76,6 +76,18 @@ class Device(models.Model, DeviceOperations):
     def has_user(self):
         return bool(self.user)
 
+    def clean(self):
+        # Ensure browser_session_id and user aren't both null
+        if not self.browser_session_id and not self.user:
+            raise ValidationError(
+                _("Both the browser session id and user can't be null"),
+                code='invalid'
+            )
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        return super().save(*args, **kwargs)
+
     class Meta:
         db_table = 'transactions\".\"device'
 
@@ -93,8 +105,7 @@ class Transaction(models.Model, TransactionOperations):
         blank=True
     )
     files_archive = models.FileField(
-        # TODO set upload_to path
-        upload_to='', 
+        upload_to=shared_files_upload_path, 
         validators=[FileExtensionValidator(['zip'])]
     )
     shared_on = models.DateTimeField(auto_now_add=True)
@@ -140,8 +151,8 @@ class Transaction(models.Model, TransactionOperations):
         db_table = 'transactions\".\"transaction'
 
 
-class Session(models.Model, SessionOperations):
-    uuid = ShortUUIDField(verbose_name=_('session code'), length=9)
+class Session(models.Model, SessionOperations, UsesCustomSignal):
+    uuid = ShortUUIDField(verbose_name=_('session code'), length=12)
     title = models.CharField(
         _('title'),
         help_text=_("Enter a name of at most 100 characters to identify this session"),
@@ -235,8 +246,36 @@ class SessionDevices(models.Model):
     def __str__(self):
         return f'Device {str(self.device)}, session {str(self.session)}'
 
+    def clean(self, **kwargs):
+        print(kwargs)
+        already_checked = kwargs.get('already_checked')
+
+        # Ensure no two devices have the same names
+        if not already_checked:
+            can_add, name_found = can_add_device_name(
+                self.session.all_devices.values_list('display_name', flat=True),
+                self.device.display_name
+            )
+
+            if not can_add:
+                raise ValidationError(
+                    _("Choose another name, there's already a device with the name %s in the session") \
+                        % name_found,
+                    code='invalid'
+                )
+
+    def save(self, *args, **kwargs):
+        self.clean(**kwargs)
+        return super().save(*args, **kwargs)
+
     class Meta:
         db_table = 'transactions\".\"session_with_devices'
+        constraints = [
+			models.UniqueConstraint(
+				fields=['session', 'device'],
+				name='unique_session_with_device'
+			),
+		]
 
 
 class SessionDelete(models.Model):
@@ -259,6 +298,12 @@ class SessionDelete(models.Model):
 
     class Meta:
         db_table = 'transactions\".\"session_delete'
+        constraints = [
+			models.UniqueConstraint(
+				fields=['session', 'user'],
+				name='unique_session_delete'
+			),
+		]
 
 
 class TransactionBookmark(models.Model):
@@ -309,6 +354,12 @@ class TransactionDelete(models.Model):
 
     class Meta:
         db_table = 'transactions\".\"transaction_delete'
+        constraints = [
+			models.UniqueConstraint(
+				fields=['transaction', 'user'],
+				name='unique_transaction_delete'
+			),
+		]
 
 
 class TransactionToDevices(models.Model):
@@ -330,4 +381,9 @@ class TransactionToDevices(models.Model):
 
     class Meta:
         db_table = 'transactions\".\"transaction_to_devices'
-
+        constraints = [
+			models.UniqueConstraint(
+				fields=['transaction', 'device'],
+				name='unique_transaction_device'
+			),
+		]

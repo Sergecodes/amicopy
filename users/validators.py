@@ -10,7 +10,7 @@ class UsernameValidator(RegexValidator):
 	- All other characters are allowed(letters, numbers, hyphens, and underscores).
 	"""
     
-	regex = r'\A[a-zA-Z0-9-_]{1,50}\Z'
+	regex = r'\A[A-ZÀ-Ÿa-z0-9-_]{1,50}\Z'
 	message = _(
 		'Enter a valid username. This value should contain at most 50 characters. \n '
 		'It should not contain any symbols or spaces; '

@@ -98,14 +98,17 @@ else:
 		}
 	}
 
-# EMAIL_HOST = config('EMAIL_HOST', default='localhost')
-# EMAIL_PORT = config('EMAIL_PORT', default=25, cast=int)
-# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-# EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-# EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
 
-if DEBUG:
+if USE_CONSOLE_EMAIL:
 	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+	# TODO  set up email
+	# EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+	# EMAIL_PORT = config('EMAIL_PORT', default=25, cast=int)
+	# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+	# EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+	# EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
+	pass
 
 
 # Application definition
@@ -205,6 +208,10 @@ USE_TZ = True
 # 		# 'TIMEOUT': 60 * 60 * 24,  # 86400(s)=24h
 # 	}
 # }
+
+
+# Use this to configure the test databases and schema during first run.
+# TEST_RUNNER = 'core.tests.runner.PostgresSchemaTestRunner'
 
 
 # Static files (CSS, JavaScript, Images)

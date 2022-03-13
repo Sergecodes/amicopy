@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from typing import Iterable
 
+from ..utils import can_add_device_name
+
 
 class DeviceOperations:
     def end_session(self, session):
@@ -81,16 +83,26 @@ class SessionOperations:
             )
 
         # Check that there's no other device in the session with the same name
-        device_names = self.all_devices.values_list('display_name', flat=True)
-        if device.display_name in device_names:
+        can_add, name_found = can_add_device_name(
+            self.all_devices.values_list('display_name', flat=True),
+            device.display_name
+        )
+
+        if not can_add:
             raise ValidationError(
-                _("Choose another name, there's already a device with that name in the session"),
+                _("Choose another name, there's already a device with the name %s in the session") \
+                    % name_found,
                 code='invalid'
             )
-        
+
         # Now save device and add to session
         device.save()
-        return SessionDevices.objects.create(session=self, device=device)
+
+        # Instantiate class manually instead of calling create object so as to 
+        # pass the already_checked argument
+        session_device_obj = SessionDevices(session=self, device=device)
+        session_device_obj.save(already_checked=True)
+        return session_device_obj
 
     def block_new_devices(self):
         self.accepts_new_devices = False
