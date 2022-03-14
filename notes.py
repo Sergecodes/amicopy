@@ -1,9 +1,7 @@
 
-- create forms
+- setup django-admin, with grappelli too
 - setup s3 bucket
-- write test for forms and models again
-- write tests for models, test custom email field (ref https://tech.serhatteker.com/post/2021-05/custom-model-field/),
-test triggers,
+- write test for forms, models, views
 - test docker
 
 

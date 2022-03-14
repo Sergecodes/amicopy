@@ -31,6 +31,10 @@ AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
 
+# REDIS
+USE_REDIS = config('USE_REDIS', default=True, cast=bool)
+REDIS_PORT = config('REDIS_PORT', cast=int)
+
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -131,6 +135,7 @@ INSTALLED_APPS = [
 	'users',
 
     # Third-party apps
+	'channels',
 	'ckeditor',
 	'django_extensions',
 	
@@ -166,6 +171,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'amicopy.wsgi.application'
 
+# Added
+ASGI_APPLICATION = "amicopy.asgi.application"
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -270,6 +277,24 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 ## THIRD-PARTY APPS CONFIG
+## channels
+if USE_REDIS:
+	CHANNEL_LAYERS = {
+		"default": {
+			"BACKEND": "channels_redis.core.RedisChannelLayer",
+			"CONFIG": {
+				"hosts": [("localhost", REDIS_PORT)],
+			},
+		},
+	}
+else:
+	CHANNEL_LAYERS = {
+		"default": {
+			"BACKEND": "channels.layers.InMemoryChannelLayer"
+		}
+	}
+
+
 ## ckeditor
 # Plugins: though not all are enabled by default
 # a11yhelp, about, adobeair, ajax, autoembed, autogrow, autolink, bbcode, clipboard, codesnippet,
