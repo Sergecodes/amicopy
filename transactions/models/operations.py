@@ -3,10 +3,22 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from typing import Iterable
 
+from ..constants import (
+    MAX_NUM_SESSIONS_GOLDEN_USERS, MAX_NUM_SESSIONS_NORMAL_USERS,
+    MAX_NUM_SESSIONS_PREMIUM_USERS, MAX_NUM_SESSIONS_UNAUTH_USERS
+)
 from ..utils import can_add_device_name
 
 
 class DeviceOperations:
+    def leave_session(self, session):
+        """Mark device as no longer in session"""
+        from .models import SessionDevices
+
+        sd_obj = SessionDevices.objects.get(device=self, session=session)
+        sd_obj.is_still_present = False
+        sd_obj.save(update_fields=['is_still_present'])
+
     def end_session(self, session):
         if not self == session.creator_device:
             raise ValidationError(
@@ -17,7 +29,7 @@ class DeviceOperations:
         session.end()
 
     def is_in_session(self, session):
-        return self in session.all_devices.all()
+        return self in session.present_devices
 
     def is_session_creator(self, session):
         return self == session.creator_device
@@ -48,7 +60,7 @@ class SessionOperations:
     def add_device(self, device):
         """
         Add `device` to the session, session should allow new devices.
-        `device` should not yet be saved. 
+        `device` should not yet be saved but should have all attributes set excluding the session. 
         """
         from .models import SessionDevices
 
@@ -75,6 +87,37 @@ class SessionOperations:
                 code='invalid'
             )
 
+        ## Check if device is permitted to join a session
+        # - device without user or with free plan can be in only one active session
+        # - device with premium plan can be in max 2 sessions
+        # - device with golden plan can be in max 5 sessions
+        user = device.user
+
+        # If device's owner is unauthenticated
+        if not user and device.ongoing_sessions.count() == MAX_NUM_SESSIONS_UNAUTH_USERS:
+            raise ValidationError(
+                _("You can be in at most %d active session") % MAX_NUM_SESSIONS_UNAUTH_USERS,
+                code='not_permitted'
+            )
+
+        user = device.user
+        user_num_ongoing_sessions = user.ongoing_sessions.count()
+        if user.is_normal and user_num_ongoing_sessions == MAX_NUM_SESSIONS_NORMAL_USERS:
+            raise ValidationError(
+                _("You can be in at most %d active session") % MAX_NUM_SESSIONS_NORMAL_USERS,
+                code='not_permitted'
+            )
+        elif user.is_premium and user_num_ongoing_sessions == MAX_NUM_SESSIONS_PREMIUM_USERS:
+            raise ValidationError(
+                _("You can be in at most %d active sessions") % MAX_NUM_SESSIONS_PREMIUM_USERS,
+                code='not_permitted'
+            )
+        elif user.is_golden and user_num_ongoing_sessions == MAX_NUM_SESSIONS_GOLDEN_USERS:
+            raise ValidationError(
+                _("You can be in at most %d active sessions") % MAX_NUM_SESSIONS_GOLDEN_USERS,
+                code='not_permitted'
+            )
+
         # Check whether session accepts new devices
         if not self.accepts_new_devices:
             raise ValidationError(
@@ -84,7 +127,7 @@ class SessionOperations:
 
         # Check that there's no other device in the session with the same name
         can_add, name_found = can_add_device_name(
-            self.all_devices.values_list('display_name', flat=True),
+            self.present_devices.values_list('display_name', flat=True),
             device.display_name
         )
 
@@ -110,8 +153,9 @@ class SessionOperations:
 
     def end(self):
         """Mark session as ended"""
+        self.is_active = False
         self.ended_on = timezone.now()
-        self.save(update_fields=['ended_on'])
+        self.save(update_fields=['is_active', 'ended_on'])
 
     def expire(self):
         """
@@ -123,8 +167,9 @@ class SessionOperations:
         """
         # TODO: set up cron job to call this method; perhaps check sessions after 
         # every 30 mins
+        self.is_active = False
         self.expired_on = timezone.now()
-        self.save(update_fields=['expired_on'])
+        self.save(update_fields=['is_active', 'expired_on'])
 
     def delete_for_users(self, users: Iterable) -> list:
         """

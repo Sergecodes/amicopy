@@ -102,8 +102,30 @@ class User(AbstractUser, UserOperations):
         return self.devices.filter(deleted_on__isnull=False)
 
     @property
+    def ongoing_sessions(self):
+        sessions = Session.objects.none()
+        existing_devices = self.existing_devices.prefetch_related('ongoing_sessions')
+        for device in existing_devices:
+            sessions.union(device.ongoing_sessions)
+
+        return sessions
+
+    @property
+    def can_use_rich_text_editor(self):
+        """
+        Verify if the user can use the rich text editor to set transaction text content.
+        Only PREMIUM and GOLDEN user can use it.
+        """
+        return True if self.is_premium or self.is_golden else False
+        
+    @property
     def has_pinned_session(self):
         return bool(self.pinned_session)
+
+    @property
+    def is_normal(self):
+        """User is using the free plan"""
+        return not self.is_premium and not self.is_golden
 
     @property 
     def is_premium(self):

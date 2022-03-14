@@ -1,3 +1,5 @@
+# Ref: https://docs.djangoproject.com/en/4.0/ref/models/fields/#field-api-reference
+
 from django.db.models import EmailField
 
 from users.models.managers import UserManager

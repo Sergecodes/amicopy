@@ -26,6 +26,12 @@ class UserOperations:
         self.pinned_session = None
         self.save(update_fields=['pinned_session'])
 
+    def is_in_session(self, session: Session):
+        """
+        Return whether the user is in the session (if the user has any device in the session)
+        """
+        return self.id in session.present_devices.values_list('user_id', flat=True)
+
     def is_session_creator(self, session: Session):
         return self == session.creator_device.user
 

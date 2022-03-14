@@ -2,10 +2,10 @@ from django.db import models
 
 
 class DeviceQueryset(models.query.QuerySet):
-    def delete(self):
-        # Override delete method to manually delete all objects
+    def delete(self, really_delete=False):
+        # Override delete method to loop through queryset and manually delete objects
         for obj in self:
-            obj.delete()
+            obj.delete(really_delete)
 
 
 class DeviceManager(models.Manager):

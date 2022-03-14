@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -22,7 +23,7 @@ User = settings.AUTH_USER_MODEL
 def shared_files_upload_path(instance, filename):
 	# instance is Transaction about to be saved.
     # File will be uploaded to MEDIA_ROOT/users/device_<id>/<filename>
-    return os.path.join('users/', f'device_{instance.from_device_id}/', filename)
+    return os.path.join('users', f'device_{instance.from_device_id}', filename)
 
 
 class Device(models.Model, DeviceOperations, UsesCustomSignal):
@@ -60,11 +61,14 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
     def __str__(self):
         return self.display_name
 
-    def delete(self):
+    def delete(self, really_delete=False):
         """
         delete() isn't called if related objects are deleted via CASCADE. 
         i.e. if a session is deleted, devices will also be deleted.
         """
+        if really_delete:
+            return super().delete()
+
         self.deleted_on = timezone.now()
         self.save(update_fields=['deleted_on'])
 
@@ -75,6 +79,11 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
     @cached_property
     def has_user(self):
         return bool(self.user)
+
+    @property
+    def ongoing_sessions(self):
+        """Return the sessions that the user is presently in"""
+        return self.sessions.filter(is_active=True, session_device__is_still_present=True)
 
     def clean(self):
         # Ensure browser_session_id and user aren't both null
@@ -90,9 +99,15 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
 
     class Meta:
         db_table = 'transactions\".\"device'
+        constraints = [
+            models.CheckConstraint(
+                check=~Q(browser_session_id='') & Q(user__isnull=True),
+                name='browser_session_id_and_user_id_not_both_unset'
+            )
+        ]
 
 
-class Transaction(models.Model, TransactionOperations):
+class Transaction(models.Model, TransactionOperations, UsesCustomSignal):
     title = models.CharField(
         _('title'),
         help_text=_("Enter a name of at most 100 characters to identify this transaction"),
@@ -106,9 +121,10 @@ class Transaction(models.Model, TransactionOperations):
     )
     files_archive = models.FileField(
         upload_to=shared_files_upload_path, 
-        validators=[FileExtensionValidator(['zip'])]
+        validators=[FileExtensionValidator(['zip'])],
+        blank=True
     )
-    shared_on = models.DateTimeField(auto_now_add=True)
+    created_on = models.DateTimeField(auto_now_add=True)
     session = models.ForeignKey(
         'Session',
         db_column='session_id',
@@ -137,18 +153,34 @@ class Transaction(models.Model, TransactionOperations):
     )
 
     def __str__(self):
-        # TODO test this method
         if title := self.title:
             return title
 
-        to_devices_names = self.to_devices.values_list('device__display_name', flat=True)
+        to_devices_names = self.to_devices.values_list('display_name', flat=True)
         return _("From %s to %s") % (self.from_device.display_name, list(to_devices_names))
 
-    def delete(self):
-        return super().delete()
+    def clean(self):
+        # Ensure text_content and files_archive aren't both null
+        if not self.text_content and not self.files_archive:
+            raise ValidationError(
+                _("Both the text content and files archive can't be null"),
+                code='invalid'
+            )
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        return super().save(*args, **kwargs)
     
     class Meta:
         db_table = 'transactions\".\"transaction'
+        constraints = [
+            models.CheckConstraint(
+                check=~Q(
+                    Q(text_content='') & Q(files_archive='')
+                ),
+                name='text_and_file_not_both_empty'
+            )
+        ]
 
 
 class Session(models.Model, SessionOperations, UsesCustomSignal):
@@ -169,6 +201,7 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
     )
     accepts_new_devices = models.BooleanField(_('accepts new devices'), default=True)
     last_transaction_on = models.DateTimeField(blank=True, null=True, editable=False)
+    is_active = models.BooleanField(default=True)
     started_on = models.DateTimeField(auto_now_add=True)
     ended_on = models.DateTimeField(null=True, blank=True, editable=False)
     expired_on = models.DateTimeField(null=True, blank=True, editable=False)
@@ -195,6 +228,18 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
     def __str__(self):
         return self.title
 
+    @cached_property
+    def creator(self):
+        return self.creator_device.user
+
+    @property
+    def present_devices(self):
+        """
+        Return devices that are presently in the session. 
+        Recall that devices can leave sessions at will
+        """
+        return self.all_devices.filter(session_device__is_still_present=True)
+
     @property
     def has_creator_code(self):
         return bool(self.creator_code)
@@ -206,10 +251,6 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
     @property
     def is_expired(self):
         return bool(self.expired_on)
-
-    @property
-    def is_active(self):
-        return not self.is_ended and not self.is_expired
 
     class Meta:
         db_table = 'transactions\".\"session'
@@ -232,16 +273,20 @@ class SessionDevices(models.Model):
         Session,
         db_column='session_id',
         on_delete=models.CASCADE,
-        related_name='+'
+        related_name='session_devices',
+        related_query_name='session_device'
     )
     device = models.ForeignKey(
         Device,
         db_column='device_id',
         on_delete=models.RESTRICT,
-        related_name='+'
+        related_name='session_devices',
+        related_query_name='session_device'
     )
     # When the device joined the session
     joined_on = models.DateTimeField(auto_now_add=True)
+    # Whether the device is still in the session
+    is_still_present = models.BooleanField(default=True)
 
     def __str__(self):
         return f'Device {str(self.device)}, session {str(self.session)}'
@@ -253,7 +298,7 @@ class SessionDevices(models.Model):
         # Ensure no two devices have the same names
         if not already_checked:
             can_add, name_found = can_add_device_name(
-                self.session.all_devices.values_list('display_name', flat=True),
+                self.session.present_devices.values_list('display_name', flat=True),
                 self.device.display_name
             )
 
@@ -302,6 +347,33 @@ class SessionDelete(models.Model):
 			models.UniqueConstraint(
 				fields=['session', 'user'],
 				name='unique_session_delete'
+			),
+		]
+
+
+class TransactionToDevices(models.Model):
+    transaction = models.ForeignKey(
+        Transaction,
+        db_column='transaction_id',
+        on_delete=models.CASCADE,
+        related_name='+'
+    )
+    device = models.ForeignKey(
+        Device,
+        db_column='device_id',
+        on_delete=models.RESTRICT,
+        related_name='+'
+    )
+
+    def __str__(self):
+        return f'Device {str(self.device)}, transaction {str(self.transaction)}'
+
+    class Meta:
+        db_table = 'transactions\".\"transaction_to_devices'
+        constraints = [
+			models.UniqueConstraint(
+				fields=['transaction', 'device'],
+				name='unique_transaction_device'
 			),
 		]
 
@@ -361,29 +433,3 @@ class TransactionDelete(models.Model):
 			),
 		]
 
-
-class TransactionToDevices(models.Model):
-    transaction = models.ForeignKey(
-        Transaction,
-        db_column='transaction_id',
-        on_delete=models.CASCADE,
-        related_name='+'
-    )
-    device = models.ForeignKey(
-        Device,
-        db_column='device_id',
-        on_delete=models.RESTRICT,
-        related_name='+'
-    )
-
-    def __str__(self):
-        return f'Device {str(self.device)}, transaction {str(self.transaction)}'
-
-    class Meta:
-        db_table = 'transactions\".\"transaction_to_devices'
-        constraints = [
-			models.UniqueConstraint(
-				fields=['transaction', 'device'],
-				name='unique_transaction_device'
-			),
-		]

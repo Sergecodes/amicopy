@@ -28,16 +28,3 @@ GRANT ALL ON  SCHEMA subscriptions TO sergeman;
 SET search_path TO `schema1`,`schema2`;
 # SET search_path TO django,transactions,users,notifications,subscriptions,public;
 
-
-4. Trigger on transactions.device to ensure both browser_session_id and user_id can't be null.
-CREATE OR REPLACE FUNCTION check_device_owner() RETURNS trigger AS $check_device_owner$
-    BEGIN 
-        IF NEW.browser_session_id = '' AND NEW.user_id IS NULL THEN
-            RAISE EXCEPTION 'Both browser_session_id and user_id can''t be unset';
-        END IF;
-        RETURN NEW;
-    END;
-    $check_device_owner$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE TRIGGER check_device_owner BEFORE INSERT OR UPDATE ON transactions.device
-    FOR EACH ROW EXECUTE FUNCTION check_device_owner();
