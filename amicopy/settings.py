@@ -16,6 +16,8 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 SECRET_KEY = config('SECRET_KEY')
 USE_CONSOLE_EMAIL = config('USE_CONSOLE_EMAIL', default=True, cast=bool)
+USE_HTTPS = config('USE_HTTPS', default=False, cast=bool)
+
 
 # DB
 USE_PROD_DB = config('USE_PROD_DB', cast=bool)
@@ -33,7 +35,13 @@ AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
 
 # REDIS
 USE_REDIS = config('USE_REDIS', default=True, cast=bool)
-REDIS_PORT = config('REDIS_PORT', cast=int)
+DJANGO_REDIS_URL = config('DJANGO_REDIS_URL')
+DJANGO_SECURE_REDIS_URL = config('DJANGO_SECURE_REDIS_URL')
+CHANNELS_REDIS_PORT = config('CHANNELS_REDIS_PORT', cast=int)
+
+
+if USE_HTTPS:
+	CSRF_COOKIE_SECURE = True
 
 
 # Database
@@ -104,7 +112,22 @@ else:
 
 
 if USE_CONSOLE_EMAIL:
+	# Values used here are the default
+
 	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+	DEFAULT_FROM_EMAIL = 'webmaster@localhost'
+	# The email address that error messages come from, such as those sent to ADMINS and MANAGERS.
+	SERVER_EMAIL = 'root@localhost'
+
+	# ADMINS and MANAGERS are only used when DEBUG=False
+	# A list of all the people who get code error notifications. 
+	# When DEBUG=False and AdminEmailHandler is configured in LOGGING (done by default), 
+	# Django emails these people the details of exceptions raised in the request/response cycle
+	ADMINS = []
+
+	# A list in the same format as ADMINS that specifies who should get
+	# broken link notifications when BrokenLinkEmailsMiddleware is enabled.
+	MANAGERS = []
 else:
 	# TODO  set up email
 	# EMAIL_HOST = config('EMAIL_HOST', default='localhost')
@@ -112,7 +135,8 @@ else:
 	# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 	# EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 	# EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
-	pass
+	ADMINS = [('John', 'john@example.com'), ('Mary', 'mary@example.com')]
+	MANAGERS = []
 
 
 # Application definition
@@ -207,14 +231,28 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Caching TODO use redis instead in production!! (even before production!)
-# CACHES = {
-# 	'default': {
-# 		'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-# 		'TIMEOUT': 300,  # The default(300s = 5mins)
-# 		# 'TIMEOUT': 60 * 60 * 24,  # 86400(s)=24h
-# 	}
-# }
+# Caching (https://github.com/jazzband/django-redis)
+if USE_REDIS:
+	SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+	SESSION_CACHE_ALIAS = "default"
+
+	CACHES = {
+		'default': {
+			'BACKEND': 'django_redis.cache.RedisCache',
+			'LOCATION': DJANGO_REDIS_URL if not USE_HTTPS else DJANGO_SECURE_REDIS_URL,
+			'OPTIONS': {
+				'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+			}
+		}
+	}
+else:
+	CACHES = {
+		'default': {
+			'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+			'TIMEOUT': 300,  # The default(300s = 5mins)
+			# 'TIMEOUT': 60 * 60 * 24,  # 86400(s)=24h
+		}
+	}
 
 
 # Use this to configure the test databases and schema during first run.
@@ -283,7 +321,7 @@ if USE_REDIS:
 		"default": {
 			"BACKEND": "channels_redis.core.RedisChannelLayer",
 			"CONFIG": {
-				"hosts": [("localhost", REDIS_PORT)],
+				"hosts": [("localhost", CHANNELS_REDIS_PORT)],
 			},
 		},
 	}

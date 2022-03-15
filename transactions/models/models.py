@@ -8,8 +8,8 @@ from django.db.models import Q
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from shortuuid.django_fields import ShortUUIDField
 
+from core.fields import ReadableShortUUIDField
 from core.mixins import UsesCustomSignal
 from users.validators import UsernameValidator
 from ..utils import can_add_device_name
@@ -184,7 +184,14 @@ class Transaction(models.Model, TransactionOperations, UsesCustomSignal):
 
 
 class Session(models.Model, SessionOperations, UsesCustomSignal):
-    uuid = ShortUUIDField(verbose_name=_('session code'), length=12)
+    uuid = ReadableShortUUIDField(
+        verbose_name=_('session code'), 
+        length=12,
+        group_by=4,
+        # Just set this as the max length, so that updating the length won't neccessary
+        # require a check on all database fields
+        max_length=20,
+    )
     title = models.CharField(
         _('title'),
         help_text=_("Enter a name of at most 100 characters to identify this session"),
