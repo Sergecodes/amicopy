@@ -15,7 +15,7 @@ class DeviceOperations:
         """Mark device as no longer in session"""
         from .models import SessionDevices
 
-        sd_obj = SessionDevices.objects.get(device=self, session=session)
+        sd_obj = SessionDevices.objects.get(device=self, session=session, session__is_active=True)
         sd_obj.is_still_present = False
         sd_obj.save(update_fields=['is_still_present'])
 
@@ -59,8 +59,7 @@ class TransactionOperations:
 class SessionOperations:
     def add_device(self, device):
         """
-        Add `device` to the session, session should allow new devices.
-        `device` should not yet be saved but should have all attributes set excluding the session. 
+        Add `device` to the session, session should allow new devices. 
         """
         from .models import SessionDevices
 
@@ -79,44 +78,37 @@ class SessionOperations:
         #         code='invalid_code'
         #     )
 
-        # Check if device has already been saved
-        # (or use if device._state.adding = True)
-        if device.pk:
-            raise ValidationError(
-                _('Device object is already saved, use only unsaved objects'),
-                code='invalid'
-            )
-
         ## Check if device is permitted to join a session
         # - device without user or with free plan can be in only one active session
         # - device with premium plan can be in max 2 sessions
         # - device with golden plan can be in max 5 sessions
-        user = device.user
 
-        # If device's owner is unauthenticated
+        # TODO do max number of sessions verifications on frontend
+
+        user = device.user
         if not user and device.ongoing_sessions.count() == MAX_NUM_SESSIONS_UNAUTH_USERS:
             raise ValidationError(
                 _("You can be in at most %d active session") % MAX_NUM_SESSIONS_UNAUTH_USERS,
                 code='not_permitted'
             )
 
-        user = device.user
-        user_num_ongoing_sessions = user.ongoing_sessions.count()
-        if user.is_normal and user_num_ongoing_sessions == MAX_NUM_SESSIONS_NORMAL_USERS:
-            raise ValidationError(
-                _("You can be in at most %d active session") % MAX_NUM_SESSIONS_NORMAL_USERS,
-                code='not_permitted'
-            )
-        elif user.is_premium and user_num_ongoing_sessions == MAX_NUM_SESSIONS_PREMIUM_USERS:
-            raise ValidationError(
-                _("You can be in at most %d active sessions") % MAX_NUM_SESSIONS_PREMIUM_USERS,
-                code='not_permitted'
-            )
-        elif user.is_golden and user_num_ongoing_sessions == MAX_NUM_SESSIONS_GOLDEN_USERS:
-            raise ValidationError(
-                _("You can be in at most %d active sessions") % MAX_NUM_SESSIONS_GOLDEN_USERS,
-                code='not_permitted'
-            )
+        if user:
+            user_num_ongoing_sessions = user.ongoing_sessions.count()
+            if user.is_normal and user_num_ongoing_sessions == MAX_NUM_SESSIONS_NORMAL_USERS:
+                raise ValidationError(
+                    _("You can be in at most %d active session") % MAX_NUM_SESSIONS_NORMAL_USERS,
+                    code='not_permitted'
+                )
+            elif user.is_premium and user_num_ongoing_sessions == MAX_NUM_SESSIONS_PREMIUM_USERS:
+                raise ValidationError(
+                    _("You can be in at most %d active sessions") % MAX_NUM_SESSIONS_PREMIUM_USERS,
+                    code='not_permitted'
+                )
+            elif user.is_golden and user_num_ongoing_sessions == MAX_NUM_SESSIONS_GOLDEN_USERS:
+                raise ValidationError(
+                    _("You can be in at most %d active sessions") % MAX_NUM_SESSIONS_GOLDEN_USERS,
+                    code='not_permitted'
+                )
 
         # Check whether session accepts new devices
         if not self.accepts_new_devices:
@@ -146,6 +138,11 @@ class SessionOperations:
         session_device_obj = SessionDevices(session=self, device=device)
         session_device_obj.save(already_checked=True)
         return session_device_obj
+
+    def allow_new_devices(self):
+        if not self.accepts_new_devices:
+            self.accepts_new_devices = True
+            self.save(update_fields=['accepts_new_devices'])
 
     def block_new_devices(self):
         self.accepts_new_devices = False

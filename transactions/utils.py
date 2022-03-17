@@ -1,4 +1,7 @@
+from channels.db import database_sync_to_async
 from typing import Iterable
+
+from core.exceptions import WSClientError
 
 
 def can_add_device_name(existing_device_names: Iterable[str], new_device_name: str):
@@ -19,3 +22,35 @@ def can_add_device_name(existing_device_names: Iterable[str], new_device_name: s
     
     return True, ''
 
+
+# This decorator turns this function from a synchronous function into an async one
+# we can call from our async consumers, that handles Django DBs correctly.
+# For more, see http://channels.readthedocs.io/en/latest/topics/databases.html
+@database_sync_to_async
+def get_session_or_error(session_uuid):
+    """
+    Tries to fetch a session. Raise encountered errors
+    """
+    from .models.models import Session
+
+    # Find the session they requested (by uuid)
+    try:
+        return Session.objects.get(uuid=session_uuid)
+    except Session.DoesNotExist:
+        # NOTE In normal circumstances, the session's existence should be confirmed 
+        # before joining the socket; especially in frontend
+        raise WSClientError("SESSION_INVALID")
+
+
+@database_sync_to_async
+def get_device_or_error(device_id):
+    """
+    Tries to fetch a device. Raise encountered errors
+    """
+    from .models.models import Device
+
+    # Find the device they requested 
+    try:
+        return Device.objects.get(id=device_id)
+    except Device.DoesNotExist:
+        raise WSClientError("DEVICE_INVALID")

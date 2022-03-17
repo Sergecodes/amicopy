@@ -1,15 +1,22 @@
 TODO:
-    - custom session code field
-    - work on consumers ... 
+    - work on consumers then test them(via selenium, see channels docs)
+    - create get_absolute url for session, user
+    - fix s3 bucket
+    - handle file upload and limits too
+    - setup django-admin with grappelli
 
-- setup django-admin, with grappelli too
-- setup s3 bucket
+TESTS:
+    - transaction form widget yields that of appropriate user
+    - 
+
+
 - write test for forms, models, views
 - test docker
 
 
 # source /home/sergeman/.virtualenvs/amicopy-env/bin/activate
 # python3 -c 'import channels; print(channels.__version__)'
+
 
 Note: for each page, search online for similar pages.
 PAGES: total - 20
@@ -48,4 +55,16 @@ FOOTER:
     ** oscend template in themeforest (https://themeforest.net/item/oscend-creative-agency-wordpress-theme/15583465)
     About, Social media(twitter, facebook), Newsletter, faq, 
     terms of service | privacy policy, feature request, 
+
+
+
+
+
+        # Check if device has already been saved
+        # (or use if device._state.adding = True)
+        if device.pk:
+            raise ValidationError(
+                _('Device object is already saved, use only unsaved objects'),
+                code='invalid'
+            )
 

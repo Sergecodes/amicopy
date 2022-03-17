@@ -39,8 +39,9 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
         null=True, 
         blank=True
     )
-    # Used when user issues anonymous transactions
-    browser_session_id = models.CharField(max_length=200, blank=True)
+    # Used when user issues anonymous transactions; max length is 40chars let's just leave 80 for now
+    # see https://docs.djangoproject.com/en/3.2/topics/http/sessions/#extending-database-backed-session-engines
+    browser_session_id = models.CharField(max_length=80, blank=True)
     display_name = models.CharField(
         _('display name'),
         max_length=50,
@@ -258,6 +259,14 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
     @property
     def is_expired(self):
         return bool(self.expired_on)
+    
+    @property
+    def group_name(self):
+        """
+        Returns the Channels Group name that sockets should subscribe to to get sent
+        messages as they are generated.
+        """
+        return 'session_%s' % self.uuid
 
     class Meta:
         db_table = 'transactions\".\"session'
