@@ -19,14 +19,27 @@ class DeviceOperations:
         sd_obj.is_still_present = False
         sd_obj.save(update_fields=['is_still_present'])
 
+        # Reset cached property
+        try:
+            del self.ongoing_sessions
+            del session.present_devices
+        except AttributeError:
+            pass 
+
     def end_session(self, session):
         if not self == session.creator_device:
             raise ValidationError(
-                _("Sessions can only be ended by the devices that started them"),
+                _("Sessions can only be ended by the device that started them"),
                 code='not_permitted'
             )
 
         session.end()
+
+        # Reset cached property
+        try:
+            del self.ongoing_sessions
+        except AttributeError:
+            pass 
 
     def is_in_session(self, session):
         return self in session.present_devices
@@ -62,13 +75,6 @@ class SessionOperations:
         Add `device` to the session, session should allow new devices. 
         """
         from .models import SessionDevices
-
-        # # Validate session key
-        # if self.uuid != key:
-        #     raise ValidationError(
-        #         _('Incorrect key'),
-        #         code='invalid_key'
-        #     )
 
         # # Check and validate creator code. If session doesn't have a creator code, 
         # # just ignore. 
@@ -130,13 +136,18 @@ class SessionOperations:
                 code='invalid'
             )
 
-        # Now save device and add to session
-        device.save()
-
         # Instantiate class manually instead of calling create object so as to 
         # pass the already_checked argument
         session_device_obj = SessionDevices(session=self, device=device)
         session_device_obj.save(already_checked=True)
+
+        # Reset cached property
+        try:
+            del device.ongoing_sessions
+            del self.present_devices
+        except AttributeError:
+            pass 
+
         return session_device_obj
 
     def allow_new_devices(self):
@@ -145,14 +156,21 @@ class SessionOperations:
             self.save(update_fields=['accepts_new_devices'])
 
     def block_new_devices(self):
-        self.accepts_new_devices = False
-        self.save(update_fields=['accepts_new_devices'])
+        if self.accepts_new_devices:
+            self.accepts_new_devices = False
+            self.save(update_fields=['accepts_new_devices'])
 
     def end(self):
         """Mark session as ended"""
         self.is_active = False
         self.ended_on = timezone.now()
         self.save(update_fields=['is_active', 'ended_on'])
+
+        # Reset cached property
+        try:
+            del self.present_devices
+        except AttributeError:
+            pass 
 
     def expire(self):
         """

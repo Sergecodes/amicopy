@@ -1,7 +1,10 @@
 from channels.db import database_sync_to_async
+from django.http import JsonResponse
+from django.utils.translation import gettext_lazy as _
 from typing import Iterable
 
 from core.exceptions import WSClientError
+from .constants import WS_MESSAGE_TYPE, AJAX_MESSAGE_TYPE
 
 
 def can_add_device_name(existing_device_names: Iterable[str], new_device_name: str):
@@ -23,6 +26,18 @@ def can_add_device_name(existing_device_names: Iterable[str], new_device_name: s
     return True, ''
 
 
+def get_session_or_404(session_uuid):
+    from .models import Session
+
+    try:
+        session = Session.objects.get(uuid=session_uuid, is_active=True)
+        return True, session
+    except Session.DoesNotExist:
+        return False, JsonResponse({
+            'msg_type': AJAX_MESSAGE_TYPE.INVALID_SESSION,
+        }, status=404)
+
+
 # This decorator turns this function from a synchronous function into an async one
 # we can call from our async consumers, that handles Django DBs correctly.
 # For more, see http://channels.readthedocs.io/en/latest/topics/databases.html
@@ -35,11 +50,11 @@ def get_session_or_error(session_uuid):
 
     # Find the session they requested (by uuid)
     try:
-        return Session.objects.get(uuid=session_uuid)
+        return Session.objects.get(uuid=session_uuid, is_active=True)
     except Session.DoesNotExist:
         # NOTE In normal circumstances, the session's existence should be confirmed 
         # before joining the socket; especially in frontend
-        raise WSClientError("SESSION_INVALID")
+        raise WSClientError(WS_MESSAGE_TYPE.INVALID_SESSION)
 
 
 @database_sync_to_async
@@ -53,4 +68,4 @@ def get_device_or_error(device_id):
     try:
         return Device.objects.get(id=device_id)
     except Device.DoesNotExist:
-        raise WSClientError("DEVICE_INVALID")
+        raise WSClientError(WS_MESSAGE_TYPE.INVALID_DEVICE)

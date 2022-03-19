@@ -11,3 +11,4 @@ django-ipware==4.0.2
 channels==3.0.4
 channels-redis==3.4.0
 django-redis==5.2.0
+selenium==4.1.3

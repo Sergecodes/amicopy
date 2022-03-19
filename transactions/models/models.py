@@ -1,10 +1,12 @@
 import os
+import shortuuid
 from ckeditor.fields import RichTextField
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.db.models import Q
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -12,6 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from core.fields import ReadableShortUUIDField
 from core.mixins import UsesCustomSignal
 from users.validators import UsernameValidator
+from ..constants import SESSION_UUID_LENGTH, SESSION_UUID_GROUP_BY
 from ..utils import can_add_device_name
 from .managers import DeviceManager
 from .operations import SessionOperations, TransactionOperations, DeviceOperations
@@ -29,6 +32,10 @@ def shared_files_upload_path(instance, filename):
 class Device(models.Model, DeviceOperations, UsesCustomSignal):
     display_name_validator = UsernameValidator()
 
+    # Used when user issues anonymous transactions; max length is 40chars let's just leave 60 for now
+    # see https://docs.djangoproject.com/en/3.2/topics/http/sessions/#extending-database-backed-session-engines
+    # see also django.contrib.sessions.models.Session
+    browser_session_key = models.CharField(max_length=60, unique=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user = models.ForeignKey(
         User,
@@ -39,9 +46,6 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
         null=True, 
         blank=True
     )
-    # Used when user issues anonymous transactions; max length is 40chars let's just leave 80 for now
-    # see https://docs.djangoproject.com/en/3.2/topics/http/sessions/#extending-database-backed-session-engines
-    browser_session_id = models.CharField(max_length=80, blank=True)
     display_name = models.CharField(
         _('display name'),
         max_length=50,
@@ -73,24 +77,24 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
         self.deleted_on = timezone.now()
         self.save(update_fields=['deleted_on'])
 
-    @cached_property
+    @property
     def is_deleted(self):
         return bool(self.deleted_on)
     
-    @cached_property
+    @property
     def has_user(self):
         return bool(self.user)
 
-    @property
+    @cached_property
     def ongoing_sessions(self):
-        """Return the sessions that the user is presently in"""
+        """Return the sessions that the device is presently in"""
         return self.sessions.filter(is_active=True, session_device__is_still_present=True)
 
     def clean(self):
-        # Ensure browser_session_id and user aren't both null
-        if not self.browser_session_id and not self.user:
+        # Ensure browser_session_key and user aren't both null
+        if not self.browser_session_key and not self.user:
             raise ValidationError(
-                _("Both the browser session id and user can't be null"),
+                _("Both the browser session key and user can't be null"),
                 code='invalid'
             )
 
@@ -102,8 +106,8 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
         db_table = 'transactions\".\"device'
         constraints = [
             models.CheckConstraint(
-                check=~Q(browser_session_id='') & Q(user__isnull=True),
-                name='browser_session_id_and_user_id_not_both_unset'
+                check=~Q(browser_session_key='') & Q(user__isnull=True),
+                name='browser_session_key_and_user_id_not_both_unset'
             )
         ]
 
@@ -187,8 +191,8 @@ class Transaction(models.Model, TransactionOperations, UsesCustomSignal):
 class Session(models.Model, SessionOperations, UsesCustomSignal):
     uuid = ReadableShortUUIDField(
         verbose_name=_('session code'), 
-        length=12,
-        group_by=4,
+        length=SESSION_UUID_LENGTH,
+        group_by=SESSION_UUID_GROUP_BY,
         # Just set this as the max length, so that updating the length won't neccessary
         # require a check on all database fields
         max_length=20,
@@ -236,11 +240,11 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
     def __str__(self):
         return self.title
 
-    @cached_property
+    @property
     def creator(self):
         return self.creator_device.user
 
-    @property
+    @cached_property
     def present_devices(self):
         """
         Return devices that are presently in the session. 
@@ -267,6 +271,28 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
         messages as they are generated.
         """
         return 'session_%s' % self.uuid
+
+    def get_absolute_url(self):
+        return reverse('transactions:session-detail', kwargs={'uuid': self.uuid})
+
+    def save(self, *args, **kwargs):
+        # If object is still getting created, try to save it.
+        # If there's an error because the auto generated uuid value is a duplicate,
+        # then regenerate till unique one is obtained.
+        # Note however that the chances of having a duplicate uuid are very slim
+
+        if not self.pk:
+            while True:
+                uuid = self.uuid
+                try:
+                    Session.objects.get(uuid=uuid)
+                    break
+                except Session.DoesNotExist:
+                    # Key wasn't unique. Try again.
+                    self.uuid = shortuuid.random(SESSION_UUID_LENGTH)
+                    continue
+            
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'transactions\".\"session'
