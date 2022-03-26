@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
-from django.utils.functional import classproperty
+from django.db.models import Q
+from django.utils.functional import classproperty, cached_property
 from django.utils.translation import gettext_lazy as _
 
 from core.fields import ProperEmailField
@@ -33,7 +34,10 @@ class User(AbstractUser, UserOperations):
         _('email address'),
         unique=True,
         max_length=50,
-        help_text=_('We will send a verification code to this email'),
+        help_text=_(
+            "We will send a verification code to this email. \n "
+            "You won't be able to change your email."
+        ),
     ) 
 
     # Can user login ? set to False by default 
@@ -102,7 +106,25 @@ class User(AbstractUser, UserOperations):
         return self.devices.filter(deleted_on__isnull=False)
 
     @property
+    def all_sessions(self):
+        """
+        Return ALL the user's sessions. 
+        This shouldn't be used to display user's sessions in frontend as it may also return
+        sessions that the user has deleted.
+        """
+        return Session.objects.filter(all_devices__in=self.existing_devices)
+
+    @cached_property
+    def undeleted_sessions(self):
+        """
+        Opposite of self.deleted_sessions but return sessions that 
+        user has participated in but hasn't deleted.
+        """
+        return self.all_sessions.exclude(deleted_by__in=[self])
+
+    @property
     def ongoing_sessions(self):
+        """Sessions that user is currently in that are still active"""
         sessions = Session.objects.none()
         existing_devices = self.existing_devices.prefetch_related('ongoing_sessions')
         for device in existing_devices:
@@ -156,10 +178,6 @@ class User(AbstractUser, UserOperations):
         # why-doesnt-djangos-model-save-call-full-clean/
         self.clean()
         super().save(*args, **kwargs)
-            
-    def get_absolute_url(self):
-        # TODO
-        pass
 
     class Meta:
         db_table = 'users\".\"user'

@@ -40,7 +40,8 @@ class UserOperations:
 
     def delete_session(self, session: Session):
         """Remove user from list of users that can view session"""
-        return session.delete_for_users([self])
+        if not self.has_deleted_session(session):
+            return session.delete_for_users([self])
 
     def delete_transaction(self, transaction: Transaction, delete_for_all=False):
         """
@@ -48,6 +49,8 @@ class UserOperations:
         If `delete_for_all` is true, user needs to have GOLDEN plan.
         """
         if not delete_for_all:
+            if self.has_deleted_transaction(transaction):
+                return 
             return transaction.delete_for_users([self])
 
         # If we're here, then user wants to delete for all users
@@ -83,11 +86,16 @@ class UserOperations:
     def has_deleted_transaction(self, transaction: Transaction):
         return self in transaction.deleted_by.all()
 
+    def has_bookmarked_transaction(self, transaction: Transaction):
+        return self in transaction.bookmarkers.all()
+
     def bookmark_transaction(self, transaction: Transaction):
-        return TransactionBookmark.objects.create(user=self, transaction=transaction)
+        if not self.has_bookmarked_transaction(transaction):
+            return TransactionBookmark.objects.create(user=self, transaction=transaction)
 
     def unbookmark_transaction(self, transaction: Transaction):
-        TransactionBookmark.objects.delete(user=self, transaction=transaction)
+        if self.has_bookmarked_transaction(transaction): 
+            TransactionBookmark.objects.delete(user=self, transaction=transaction)
 
 
 

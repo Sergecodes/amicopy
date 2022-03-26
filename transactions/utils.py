@@ -1,6 +1,7 @@
 from channels.db import database_sync_to_async
-from django.http import JsonResponse
 from django.utils.translation import gettext_lazy as _
+from rest_framework.response import Response
+from rest_framework.status import HTTP_404_NOT_FOUND
 from typing import Iterable
 
 from core.exceptions import WSClientError
@@ -33,9 +34,9 @@ def get_session_or_404(session_uuid):
         session = Session.objects.get(uuid=session_uuid, is_active=True)
         return True, session
     except Session.DoesNotExist:
-        return False, JsonResponse({
+        return False, Response({
             'msg_type': AJAX_MESSAGE_TYPE.INVALID_SESSION,
-        }, status=404)
+        }, status=HTTP_404_NOT_FOUND)
 
 
 # This decorator turns this function from a synchronous function into an async one

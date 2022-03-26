@@ -1,5 +1,6 @@
 # Ref: https://docs.djangoproject.com/en/3.2/ref/models/fields/#field-api-reference
 
+import serpy
 from django.db.models import EmailField
 from shortuuid.django_fields import ShortUUIDField
 
@@ -14,17 +15,20 @@ class ProperEmailField(EmailField):
         return value.replace('@googlemail.com', '@gmail.com')
 
     def get_prep_value(self, value):
+        # When storing to db
         value = super().get_prep_value(value)
         if value is None:
             return None
         return self._parse_value(str(value))
 
     def to_python(self, value):
+        # When displaying
         if value is None:
             return value
         return self._parse_value(str(value))
 
     def from_db_value(self, value, expression, connection):
+        # After retrieving from db
         return self.to_python(value)
 
 
@@ -52,7 +56,9 @@ class ReadableShortUUIDField(ShortUUIDField):
         value = super().get_prep_value(value)
         if value is None:
             return None
-        return self._parse_value(value, self.sep, self.group_by)
+
+        # Remove hyphens 
+        return value.replace('-', '')
 
     def to_python(self, value):
         if value is None:
@@ -61,4 +67,11 @@ class ReadableShortUUIDField(ShortUUIDField):
 
     def from_db_value(self, value, expression, connection):
         return self.to_python(value)
+
+
+## Custom serpy serializer fields
+class SerpyDateTimeField(serpy.Field):
+    def to_value(self, value):
+      return value.isoformat()
+
 

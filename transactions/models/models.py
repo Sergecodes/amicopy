@@ -87,7 +87,7 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
 
     @cached_property
     def ongoing_sessions(self):
-        """Return the sessions that the device is presently in"""
+        """Return the sessions that are active and the device is presently in"""
         return self.sessions.filter(is_active=True, session_device__is_still_present=True)
 
     def clean(self):
@@ -230,6 +230,8 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
         related_name='created_sessions',
         related_query_name='created_session'
     )
+    # No "deleted_by" for device since only auth users can delete sessions and if a user 
+    # deletes a sessions, it needs to be reflected across all his logged in devices
     deleted_by = models.ManyToManyField(
         User,
         through='SessionDelete',
@@ -251,6 +253,11 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
         Recall that devices can leave sessions at will
         """
         return self.all_devices.filter(session_device__is_still_present=True)
+
+    @property
+    def present_users(self):
+        # TODO 
+        pass
 
     @property
     def has_creator_code(self):

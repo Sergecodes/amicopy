@@ -1,5 +1,6 @@
 TODO:
-    - create user views
+    - make project rest framework compatible
+    - handle compatible use cases using consumers
     - fix s3 bucket
     - handle file upload and limits too; link it with channels
     - setup django-admin with grappelli
@@ -12,8 +13,14 @@ TESTS:
 - write test for forms, models, views
 - test docker
 
+NOTE:
+- https://github.com/django-cache-machine/django-cache-machine/blob/master/docs/index.rst
+- https://github.com/jmoiron/johnny-cache
+
 
 # source /home/sergeman/.virtualenvs/amicopy-env/bin/activate
+
+
 # python3 -c 'import channels; print(channels.__version__)'
 
 
@@ -22,10 +29,12 @@ PAGES: total - 20
 - home page: display what site is about, how to use, steps .. (ALSO USE SVG IMAGE VECTORS)
 - pricing page: display monthly and yearly pricing, with differences between each plan
 - session creation page (form)
-- ongoing / present session page: (usage of websockets here with transactions displayed).
+- session detail page: (usage of websockets here with transactions displayed). see 
+https://wordpress.ehr-crm.com/frontend-manager/dashboard responsivity
 user should also see sessions that he's in, clicking on one should probably lead to a new page...
 - User pages :
 (login to hubs.docker.com and visit profile if possible use same structure of pages and even dropdown used)
+(see https://id.atlassian.com/manage-profile/ too)
     - clipboard(display past sessions and corresponding transactions) 
     - profile
     - settings
