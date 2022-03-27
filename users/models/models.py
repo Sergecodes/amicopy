@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
-from django.db.models import Q
 from django.utils.functional import classproperty, cached_property
 from django.utils.translation import gettext_lazy as _
 
@@ -94,8 +93,16 @@ class User(AbstractUser, UserOperations):
         return cls.objects.filter(is_staff=True)
 
     @classproperty
+    def staff_users(cls):
+        return cls.staff
+
+    @classproperty
     def active(cls):
         return cls.objects.filter(is_active=True)
+
+    @classproperty
+    def active_users(cls):
+        return cls.active
 
     @property
     def existing_devices(self):
@@ -103,7 +110,7 @@ class User(AbstractUser, UserOperations):
         Return the devices that haven't been deleted. 
         All things been normal, devices will never be deleted.
         """
-        return self.devices.filter(deleted_on__isnull=False)
+        return self.devices.filter(deleted_on__isnull=True)
 
     @property
     def all_sessions(self):

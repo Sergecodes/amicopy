@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from ipware import get_client_ip
 from rest_framework import status
@@ -7,20 +8,17 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .constants import AJAX_MESSAGE_TYPE
+from .constants import API_MESSAGE_TYPE
 from .forms import SessionForm
 from .models.models import Device
 from .serializers import SessionSerializer
 from .utils import get_session_or_404
 
 
-def test(request):
-    return render(request, 'transactions/test.html')
-
-
+@method_decorator(permission_classes([IsAuthenticated]), name='get')
+@method_decorator(permission_classes([IsAuthenticatedOrReadOnly]), name='post')
 class SessionList(APIView):
     """List user's sessions or create new session"""
-    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, format=None):
         sessions = request.user.undeleted_sessions.all()
@@ -72,7 +70,7 @@ def session_detail(request, uuid):
     elif request.method == 'DELETE':
         if not user or user.is_anonumous:
             return Response({
-                'msg_type': AJAX_MESSAGE_TYPE.NOT_PERMITTED
+                'msg_type': API_MESSAGE_TYPE.NOT_PERMITTED.value
             }, status=status.HTTP_401_UNAUTHORIZED)
 
         user.delete_session(session)
@@ -104,11 +102,11 @@ def verify_creator_code(request, uuid, code):
         creator_code = session.creator_code
 
         if not creator_code:
-            return Response({'msg_type': AJAX_MESSAGE_TYPE.NO_CREATOR_CODE})
+            return Response({'msg_type': API_MESSAGE_TYPE.NO_CREATOR_CODE.value})
 
         if creator_code != code:
             return Response({
-                'msg_type': AJAX_MESSAGE_TYPE.INVALID_CREATOR_CODE
+                'msg_type': API_MESSAGE_TYPE.INVALID_CREATOR_CODE.value
             }, status=status.HTTP_400_BAD_REQUEST)
 
     response = result
@@ -127,7 +125,7 @@ def toggle_allow_new_devices(request, uuid):
     # User should be owner of session
     if request.user != session.creator:
         return Response({
-            'msg_type': AJAX_MESSAGE_TYPE.NOT_PERMITTED
+            'msg_type': API_MESSAGE_TYPE.NOT_PERMITTED.value
         }, status=status.HTTP_403_FORBIDDEN)
 
     if session.accepts_new_devices:

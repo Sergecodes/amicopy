@@ -72,6 +72,6 @@ class ReadableShortUUIDField(ShortUUIDField):
 ## Custom serpy serializer fields
 class SerpyDateTimeField(serpy.Field):
     def to_value(self, value):
-      return value.isoformat()
+        return '' if value is None else value.isoformat()
 
 

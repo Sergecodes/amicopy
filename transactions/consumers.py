@@ -130,7 +130,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         except ValidationError as e:
             await self.send_json({
                 'message': e.message,
-                'msg_type': WS_MESSAGE_TYPE.ERROR,
+                'msg_type': WS_MESSAGE_TYPE.ERROR.value,
             })
 
     async def leave_session(self, session_uuid, device_id):
@@ -163,7 +163,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         """
         # Check they are in this session
         if session_uuid not in self.sessions:
-            raise WSClientError(WS_MESSAGE_TYPE.NOT_IN_SESSION)
+            raise WSClientError(WS_MESSAGE_TYPE.NOT_IN_SESSION.value)
 
         # Get the session and notify the group(session) of the message
         session = await get_session_or_error(session_uuid)
@@ -201,7 +201,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         except ValidationError as e:
             await self.send_json({
                 'message': e.message,
-                'msg_type': WS_MESSAGE_TYPE.ERROR,
+                'msg_type': WS_MESSAGE_TYPE.ERROR.value,
             })
 
 
@@ -214,7 +214,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         """
         # Send a message down to the client
         await self.send_json({
-            'msg_type': WS_MESSAGE_TYPE.ENTER,
+            'msg_type': WS_MESSAGE_TYPE.ENTER.value,
             'session_uuid': event['session_uuid'],
         })
 
@@ -224,7 +224,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         """
         # Send a message down to the client
         await self.send_json({
-            'msg_type': WS_MESSAGE_TYPE.LEAVE,
+            'msg_type': WS_MESSAGE_TYPE.LEAVE.value,
             'session_uuid': event['session_uuid'],
         })
 
@@ -234,7 +234,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         """
         # Send a message down to the client
         await self.send_json({
-            'msg_type': WS_MESSAGE_TYPE.SESSION_END,
+            'msg_type': WS_MESSAGE_TYPE.SESSION_END.value,
             'session_uuid': event['session_uuid'],
         })
 
@@ -244,7 +244,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         """
         # Send a message down to the client
         await self.send_json({
-            'msg_type': WS_MESSAGE_TYPE.TRANSACTION,
+            'msg_type': WS_MESSAGE_TYPE.TRANSACTION.value,
             'session_uuid': event['session_uuid'],
             'message': event['message'],
         })
@@ -253,7 +253,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         """Called when someone asks group creator to join the group"""
 
         await self.send_json({
-            'msg_type': WS_MESSAGE_TYPE.REQUEST_JOIN,
+            'msg_type': WS_MESSAGE_TYPE.REQUEST_JOIN.value,
             'session_uuid': event['session_uuid'],
         })
 

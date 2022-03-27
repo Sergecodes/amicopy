@@ -5,7 +5,7 @@ from rest_framework.status import HTTP_404_NOT_FOUND
 from typing import Iterable
 
 from core.exceptions import WSClientError
-from .constants import WS_MESSAGE_TYPE, AJAX_MESSAGE_TYPE
+from .constants import WS_MESSAGE_TYPE, API_MESSAGE_TYPE
 
 
 def can_add_device_name(existing_device_names: Iterable[str], new_device_name: str):
@@ -35,7 +35,7 @@ def get_session_or_404(session_uuid):
         return True, session
     except Session.DoesNotExist:
         return False, Response({
-            'msg_type': AJAX_MESSAGE_TYPE.INVALID_SESSION,
+            'msg_type': API_MESSAGE_TYPE.INVALID_SESSION.value,
         }, status=HTTP_404_NOT_FOUND)
 
 
@@ -55,7 +55,7 @@ def get_session_or_error(session_uuid):
     except Session.DoesNotExist:
         # NOTE In normal circumstances, the session's existence should be confirmed 
         # before joining the socket; especially in frontend
-        raise WSClientError(WS_MESSAGE_TYPE.INVALID_SESSION)
+        raise WSClientError(WS_MESSAGE_TYPE.INVALID_SESSION.value)
 
 
 @database_sync_to_async
@@ -69,4 +69,4 @@ def get_device_or_error(device_id):
     try:
         return Device.objects.get(id=device_id)
     except Device.DoesNotExist:
-        raise WSClientError(WS_MESSAGE_TYPE.INVALID_DEVICE)
+        raise WSClientError(WS_MESSAGE_TYPE.INVALID_DEVICE.value)

@@ -105,8 +105,10 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
     class Meta:
         db_table = 'transactions\".\"device'
         constraints = [
+            # Either browser_session_key should be set(should not be empty) or
+            # user id should not be empty
             models.CheckConstraint(
-                check=~Q(browser_session_key='') & Q(user__isnull=True),
+                check=~Q(browser_session_key='') & Q(user__isnull=False),
                 name='browser_session_key_and_user_id_not_both_unset'
             )
         ]
@@ -255,9 +257,18 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
         return self.all_devices.filter(session_device__is_still_present=True)
 
     @property
+    def all_users(self):
+        """Same as 'all_devices' but returns users"""
+        return User.active.filter(
+            Q(devices__deleted_on__isnull=True) & Q(devices__in=self.all_devices)
+        )
+
+    @property
     def present_users(self):
-        # TODO 
-        pass
+        """Same as 'present_devices' but returns users"""
+        return User.active.filter(
+            Q(devices__deleted_on__isnull=True) & Q(devices__in=self.present_devices)
+        )
 
     @property
     def has_creator_code(self):
@@ -288,17 +299,19 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
         # then regenerate till unique one is obtained.
         # Note however that the chances of having a duplicate uuid are very slim
 
+        uuid = self.uuid
         if not self.pk:
             while True:
-                uuid = self.uuid
                 try:
                     Session.objects.get(uuid=uuid)
-                    break
                 except Session.DoesNotExist:
-                    # Key wasn't unique. Try again.
-                    self.uuid = shortuuid.random(SESSION_UUID_LENGTH)
-                    continue
+                    # Key was unique, we can go out of loop
+                    break
+                else:
+                    # Key wasn't unique. Try again with new key.
+                    uuid = shortuuid.random(SESSION_UUID_LENGTH)
             
+        self.uuid = uuid
         super().save(*args, **kwargs)
 
     class Meta:

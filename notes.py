@@ -1,21 +1,37 @@
 TODO:
-    - make project rest framework compatible
+    - test auth views
+    - for api responses, include message and type keys.
     - handle compatible use cases using consumers
+    - create fields sessions_created, sessions_partake, transactions created, transactions received 
+    on User model and appropriate increment their values.
     - fix s3 bucket
     - handle file upload and limits too; link it with channels
     - setup django-admin with grappelli
+    - setup queryset and overall caching(including views, ...)
+
 
 TESTS:
-    - transaction form widget yields that of appropriate user
-    - channels
-    - duplicate session uuid
+    - channels (see docs)
+    - write test for forms, models, views
+    - configure then test social auth with google and facebook
+    - test docker
 
-- write test for forms, models, views
-- test docker
 
 NOTE:
+** https://docs.djangoproject.com/en/4.0/topics/db/optimization/
+** - https://github.com/Suor/django-cacheops
 - https://github.com/django-cache-machine/django-cache-machine/blob/master/docs/index.rst
 - https://github.com/jmoiron/johnny-cache
+
+- https://medium.com/netscape/full-stack-django-quick-start-with-jwt-auth-and-react-redux-part-i-37853685ab57
+- https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+- https://github.com/cure53/DOMPurify
+
+
+
+TIPS:
+- possibility to display graphs showing past sessions and transactions
+(for golden users)
 
 
 # source /home/sergeman/.virtualenvs/amicopy-env/bin/activate
@@ -53,16 +69,18 @@ user should also see sessions that he's in, clicking on one should probably lead
 - privacy policy 
 - terms of service
 
+INSPIRATION...:
+    - https://send-anywhere.com/#transfer
+    
+    HEADER: (see hubs.docker.com for more inspiration)
+        Home; Create/join session dropdown(can call the dropdown New session); Upgrade (leads to pricing page); 
+        Log in - Sign up; hubs.docker.com Profile dropdown; 
+        light-dark mode switch(material ui or docs.docker.com)
 
-HEADER: (see hubs.docker.com for more inspiration)
-    Home; Create/join session dropdown(can call the dropdown New session); Upgrade (leads to pricing page); 
-    Log in - Sign up; hubs.docker.com Profile dropdown; 
-    light-dark mode switch(material ui or docs.docker.com)
-
-FOOTER: 
-    ** oscend template in themeforest (https://themeforest.net/item/oscend-creative-agency-wordpress-theme/15583465)
-    About, Social media(twitter, facebook), Newsletter, faq, 
-    terms of service | privacy policy, feature request, 
+    FOOTER: 
+        ** oscend template in themeforest (https://themeforest.net/item/oscend-creative-agency-wordpress-theme/15583465)
+        About, Social media(twitter, facebook), Newsletter, faq, 
+        terms of service | privacy policy, feature request, 
 
 
 

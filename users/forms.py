@@ -36,15 +36,16 @@ class UserCreationForm(BaseUserCreationForm):
             'email': _('Email address')
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Remove autofocus set by superclass on `username_field` (email)
-        self.fields['email'].widget.attrs.pop('autofocus')
+    ## No need for this since form won't be handled by django
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     # Remove autofocus set by superclass on `username_field` (email)
+    #     self.fields['email'].widget.attrs.pop('autofocus')
 
-        # Set class on password field
-        # this can't be done on the Meta.widgets object because
-        # this field was set in the class definition(super class)
-        self.fields['password1'].widget.attrs.update({'class': 'js-password1'})
+    #     # Set class on password field
+    #     # this can't be done on the Meta.widgets object because
+    #     # this field was set in the class definition(super class)
+    #     self.fields['password1'].widget.attrs.update({'class': 'js-password1'})
 
     def _post_clean(self):
         super()._post_clean()

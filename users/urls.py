@@ -1,97 +1,12 @@
-from django.contrib.auth import views as auth_views
-from django.urls import path, include, reverse_lazy
-from django.utils.translation import gettext_lazy as _
-
-from . import views
+from django.urls import path, include
 
 app_name = 'users'
 
 
-
 urlpatterns = [
-	path(_('register/'), views.UserCreate.as_view(), name='register'),
-	path(_('confirm-email/<uidb64>/<token>/'), views.activate_account, name='account-activate'),
-	path(
-		_('login/'),
-		auth_views.LoginView.as_view(
-			template_name='users/auth/login.html',
-			# See warning concerning this boolean attribute 
-			# https://docs.djangoproject.com/en/3.1/topics/auth/default/#django.contrib.auth.views.LoginView
-            # TODO apply corrective measure
-			redirect_authenticated_user=True
-		), 
-		name='login'
-	),
-	path(
-		_('logout/'), 
-		auth_views.LogoutView.as_view(),
-		name='logout'
-	),
-	# path(
-	# 	_('logout_then_login/'),
-	# 	views.logout_and_login,
-	# 	name='logout-then-login'
-	# ),
-	# path(
-	# 	_('change-password/'),
-	# 	auth_views.PasswordChangeView.as_view(
-	# 		template_name='users/auth/password_change.html',
-	# 		success_url=reverse_lazy('users:password-change-done')
-	# 	),
-	# 	name='password-change'
-	# ),
-	# path(
-	# 	_('change-password/done/'),
-	# 	auth_views.PasswordChangeDoneView.as_view(
-	# 		template_name='users/auth/password_change_done.html',
-	# 	),
-	# 	name='password-change-done'
-	# ),
-
-	# Note that both authed and unauthed users can access this view. of course! 
-	# a previously authed user might have forgotten his password, same as an unauthed user.
-	# path(
-	# 	_('reset-password/'),
-	# 	auth_views.PasswordResetView.as_view(
-	# 		template_name='users/auth/password_reset_form.html',
-	# 		email_template_name='users/auth/password_reset_email.html',
-	# 		success_url=reverse_lazy('users:password-reset-done')
-	# 	),
-	# 	name='password-reset'
-	# ),
-	# path(
-	# 	# The page shown after a user has been emailed a link to reset their password.
-	# 	_('reset-password/email-sent/'),
-	# 	auth_views.PasswordResetDoneView.as_view(
-	# 		template_name='users/auth/password_reset_done.html',
-	# 	),
-	# 	name='password-reset-done'
-	# ),
-	# path(
-	# 	# Presents a form for entering a new password.
-	# 	_('reset-password/confirm/<uidb64>/<token>/'),
-	# 	auth_views.PasswordResetConfirmView.as_view(
-	# 		template_name='users/auth/password_reset_confirm.html',
-	# 		success_url=reverse_lazy('users:password-reset-complete')
-	# 	),
-	# 	name='password-reset-confirm'
-	# ),
-	# path(
-	# 	# Presents a view which informs the user that the password has been successfully changed.
-	# 	_('reset-password/complete/'),
-	# 	auth_views.PasswordResetCompleteView.as_view(
-	# 		template_name='users/auth/password_reset_complete.html',
-	# 	),
-	# 	name='password-reset-complete'
-	# ),
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.jwt')),
+    path('auth/', include('djoser.social.urls')),
 
 ]
-
-
-
-# Class-based password reset views
-# - PasswordResetView sends the mail
-# - PasswordResetDoneView shows a success message for the above
-# - PasswordResetConfirmView checks the link the user clicked and
-#   prompts for a new password
-# - PasswordResetCompleteView shows a success message for the above
+# Default URL: /o/{{ provider }}/

@@ -1,5 +1,7 @@
 import os
+from datetime import timedelta
 from decouple import config, Csv
+from django.utils.translation import gettext_lazy as _
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -163,6 +165,7 @@ INSTALLED_APPS = [
 	'ckeditor',
 	'django_extensions',
 	'rest_framework',
+	'djoser',  # Should come after rest_framework
 	
 ]
 
@@ -377,12 +380,43 @@ CKEDITOR_CONFIGS = {
 
 ## djangorestframework
 REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ],
+	'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+		# 'rest_framework.authentication.BasicAuthentication',
+    ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 15
 }
+
+
+## djangorestframework-simplejwt
+SIMPLE_JWT = {
+	'AUTH_HEADER_TYPES': ('JWT', ),
+	'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+	'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+	# TODO impose throttling on this view to minimize db queryes as recommended by simple-jwt,
+	# eg only update once per user per day
+	'UPDATE_LAST_LOGIN': True,  
+}
+
+
+## djoser
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': _('#/password/reset/confirm/{uid}/{token}'),
+    'USERNAME_RESET_CONFIRM_URL': _('#/username/reset/confirm/{uid}/{token}'),
+    'ACTIVATION_URL': _('#/activate/{uid}/{token}'),
+	'USERNAME_RESET_CONFIRM_URL': _('#/username-reset/{uid}/{token}'),
+    'SEND_ACTIVATION_EMAIL': True,
+	'LOGOUT_ON_PASSWORD_CHANGE': True, 
+}
+
+## python social auth
+# SOCIAL_AUTH_FACEBOOK_KEY = ''
+# SOCIAL_AUTH_FACEBOOK_SECRET = ''
+# SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+# SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+#   'locale': 'ru_RU',
+#   'fields': 'id, name, email, age_range'
+# }
 

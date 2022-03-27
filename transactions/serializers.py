@@ -9,7 +9,6 @@ class DeviceSerializer(serpy.Serializer):
     ip_address = serpy.StrField()
     display_name = serpy.StrField()
     deleted_on = SerpyDateTimeField()
-
     user = UserSerializer()
 
 
