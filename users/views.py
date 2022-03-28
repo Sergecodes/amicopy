@@ -71,7 +71,7 @@
 # 		return Response(form.errors.as_json(), status=status.HTTP_400_BAD_REQUEST)
 
 # 	def post(self, request, format=None):
-# 		form = UserCreationForm(request.POST)
+# 		form = UserCreationForm(request.data)
 # 		if form.is_valid():
 # 			return self._form_valid(form)
 # 		else:

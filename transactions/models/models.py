@@ -2,6 +2,7 @@ import os
 import shortuuid
 from ckeditor.fields import RichTextField
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db import models
@@ -64,7 +65,7 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
     objects = DeviceManager()
 
     def __str__(self):
-        return self.display_name
+        return f'{self.display_name}; {self.user}'
 
     def delete(self, really_delete=False):
         """
@@ -166,6 +167,17 @@ class Transaction(models.Model, TransactionOperations, UsesCustomSignal):
         to_devices_names = self.to_devices.values_list('display_name', flat=True)
         return _("From %s to %s") % (self.from_device.display_name, list(to_devices_names))
 
+    @cached_property
+    def from_user(self):
+        return self.from_device.user
+
+    @cached_property
+    def to_users(self):
+        """Users that received the transaction, same as to_devices but returns users"""
+        return get_user_model().active.filter(
+            Q(device__deleted_on__isnull=True) & Q(device__in=self.to_devices)
+        )
+
     def clean(self):
         # Ensure text_content and files_archive aren't both null
         if not self.text_content and not self.files_archive:
@@ -242,7 +254,7 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
     )
 
     def __str__(self):
-        return self.title
+        return f'{self.title}, {self.uuid}'
 
     @property
     def creator(self):
@@ -251,7 +263,7 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
     @cached_property
     def present_devices(self):
         """
-        Return devices that are presently in the session. 
+        Return devices that are presently(still) in the session. 
         Recall that devices can leave sessions at will
         """
         return self.all_devices.filter(session_device__is_still_present=True)
@@ -259,15 +271,15 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
     @property
     def all_users(self):
         """Same as 'all_devices' but returns users"""
-        return User.active.filter(
-            Q(devices__deleted_on__isnull=True) & Q(devices__in=self.all_devices)
+        return get_user_model().active.filter(
+            Q(device__deleted_on__isnull=True) & Q(device__in=self.all_devices.all())
         )
 
     @property
     def present_users(self):
         """Same as 'present_devices' but returns users"""
-        return User.active.filter(
-            Q(devices__deleted_on__isnull=True) & Q(devices__in=self.present_devices)
+        return get_user_model().active.filter(
+            Q(device__deleted_on__isnull=True) & Q(device__in=self.present_devices)
         )
 
     @property

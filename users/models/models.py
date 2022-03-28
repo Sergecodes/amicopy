@@ -121,6 +121,11 @@ class User(AbstractUser, UserOperations):
         """
         return Session.objects.filter(all_devices__in=self.existing_devices)
 
+    @property
+    def created_sessions(self):
+        """Return all sessions that user has created"""
+        return Session.objects.filter(creator_device__user=self)
+
     @cached_property
     def undeleted_sessions(self):
         """
@@ -133,7 +138,7 @@ class User(AbstractUser, UserOperations):
     def ongoing_sessions(self):
         """Sessions that user is currently in that are still active"""
         sessions = Session.objects.none()
-        existing_devices = self.existing_devices.prefetch_related('ongoing_sessions')
+        existing_devices = self.existing_devices.prefetch_related('sessions')
         for device in existing_devices:
             sessions.union(device.ongoing_sessions)
 

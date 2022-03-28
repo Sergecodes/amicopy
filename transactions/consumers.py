@@ -5,8 +5,8 @@ from ipware import get_client_ip
 
 from core.exceptions import WSClientError
 from .constants import WS_MESSAGE_TYPE
-from .utils import get_device_or_error, get_session_or_error
 from .models.models import Device
+from .utils import get_device_or_error, get_session_or_error
 
 
 class SessionConsumer(AsyncJsonWebsocketConsumer):

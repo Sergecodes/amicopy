@@ -395,7 +395,7 @@ SIMPLE_JWT = {
 	'AUTH_HEADER_TYPES': ('JWT', ),
 	'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
 	'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-	# TODO impose throttling on this view to minimize db queryes as recommended by simple-jwt,
+	# TODO impose throttling on this view to minimize db queries as recommended by simple-jwt,
 	# eg only update once per user per day
 	'UPDATE_LAST_LOGIN': True,  
 }
@@ -408,7 +408,10 @@ DJOSER = {
     'ACTIVATION_URL': _('#/activate/{uid}/{token}'),
 	'USERNAME_RESET_CONFIRM_URL': _('#/username-reset/{uid}/{token}'),
     'SEND_ACTIVATION_EMAIL': True,
-	'LOGOUT_ON_PASSWORD_CHANGE': True, 
+	'SERIALIZERS': {
+		'user': 'users.serializers.UserSerializer',
+    	'current_user': 'users.serializers.UserSerializer',
+	}
 }
 
 ## python social auth

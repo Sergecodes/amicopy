@@ -26,7 +26,11 @@ class SessionList(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        form = SessionForm(request.POST)
+        """
+        Required: title, display_name(device display name)
+        Optional: code (creator code)
+        """
+        form = SessionForm(request.data)
         if form.is_valid():
             request_session, user = request.session, request.user
             session_obj = form.save(commit=False)
@@ -34,14 +38,13 @@ class SessionList(APIView):
             ip, is_routable = get_client_ip(request)
             session_obj.creator_device = Device.objects.create(
                 ip_address=ip, 
-                display_name=request.POST['display_name'],
+                display_name=request.data.get('display_name', user.username),
                 browser_session_key=request_session._get_or_create_session_key(), 
                 user=user if user.is_authenticated else None
             )
 
             session_obj.save()
             return Response({
-                'creator_code': session_obj.creator_code,
                 'title': session_obj.title,
                 'accepts_new_devices': session_obj.accepts_new_devices
             }, status.HTTP_201_CREATED)
@@ -68,7 +71,7 @@ def session_detail(request, uuid):
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
-        if not user or user.is_anonumous:
+        if user.is_anonymous:
             return Response({
                 'msg_type': API_MESSAGE_TYPE.NOT_PERMITTED.value
             }, status=status.HTTP_401_UNAUTHORIZED)
@@ -84,7 +87,6 @@ def verify_session_exists(request, uuid):
     if found:
         session = result
         return Response({
-            'creator_code': session.creator_code,
             'title': session.title,
             'accepts_new_devices': session.accepts_new_devices
         })
@@ -94,7 +96,7 @@ def verify_session_exists(request, uuid):
 
 
 @api_view(['GET'])
-def verify_creator_code(request, uuid, code):
+def verify_creator_code(request, code, uuid):
     found, result = get_session_or_404(uuid)
 
     if found:
@@ -130,8 +132,8 @@ def toggle_allow_new_devices(request, uuid):
 
     if session.accepts_new_devices:
         session.block_new_devices()
+        return Response({'msg_type': API_MESSAGE_TYPE.NEW_DEVICES_BLOCKED.value})
     else:
         session.allow_new_devices()
-
-    return Response()
+        return Response({'msg_type': API_MESSAGE_TYPE.NEW_DEVICES_UNBLOCKED.value})
 

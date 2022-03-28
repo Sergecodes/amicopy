@@ -1,13 +1,20 @@
 TODO:
-    - test auth views
-    - for api responses, include message and type keys.
-    - handle compatible use cases using consumers
-    - create fields sessions_created, sessions_partake, transactions created, transactions received 
-    on User model and appropriate increment their values.
-    - fix s3 bucket
-    - handle file upload and limits too; link it with channels
-    - setup django-admin with grappelli
-    - setup queryset and overall caching(including views, ...)
+    *TODAY MONDAY(28/03)
+        - for api responses, include message and type keys.
+        - create all use cases(consumers and api based)
+        - create fields number of ... sessions_created, sessions_partake, transactions created, transactions received 
+    on User model and appropriately increment their values.
+
+    *TUESDAY(29/03)
+        - fix s3 bucket
+        - handle file upload and limits too; link it with channels
+        - setup django-admin with grappelli
+        - install django debug toolbar
+
+    *WEDNESDAY(30/03)
+        - optimize and test db queries (setup queryset and caching, including views and properties on models)
+        (use prefetch_related! https://betterprogramming.pub/django-select-related-and-prefetch-related-f23043fd635d)
+        - implement ALL todos (including celery expiration)
 
 
 TESTS:

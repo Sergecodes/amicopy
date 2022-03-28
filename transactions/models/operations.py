@@ -41,7 +41,8 @@ class DeviceOperations:
         except AttributeError:
             pass 
 
-    def is_in_session(self, session):
+    def is_presently_in_session(self, session):
+        """Is device presently in session"""
         return self in session.present_devices
 
     def is_session_creator(self, session):
@@ -52,6 +53,13 @@ class DeviceOperations:
 
 
 class TransactionOperations:
+    def concerns_user(self, user):
+        """
+        Verify if a user partook in a transaction. 
+        i.e. if they are the sender or among the receivers
+        """
+        return user == self.from_user or user in self.to_users
+
     def delete_for_users(self, users: Iterable):
         """
         Mark transaction as deleted by users `users`. 
@@ -70,6 +78,10 @@ class TransactionOperations:
 
 
 class SessionOperations:
+    def concerns_user(self, user):
+        """Verify if user partook in the session."""
+        return user in self.all_users
+
     def add_device(self, device):
         """
         Add `device` to the session, session should allow new devices. 
@@ -151,20 +163,33 @@ class SessionOperations:
         return session_device_obj
 
     def allow_new_devices(self):
+        if not self.is_active:
+            raise ValidationError(
+                _('Session is no longer active'),
+                code='invalid'
+            )
+
         if not self.accepts_new_devices:
             self.accepts_new_devices = True
             self.save(update_fields=['accepts_new_devices'])
 
     def block_new_devices(self):
+        if not self.is_active:
+            raise ValidationError(
+                _('Session is no longer active'),
+                code='invalid'
+            )
+
         if self.accepts_new_devices:
             self.accepts_new_devices = False
             self.save(update_fields=['accepts_new_devices'])
 
     def end(self):
         """Mark session as ended"""
-        self.is_active = False
-        self.ended_on = timezone.now()
-        self.save(update_fields=['is_active', 'ended_on'])
+        if self.is_active:
+            self.is_active = False
+            self.ended_on = timezone.now()
+            self.save(update_fields=['is_active', 'ended_on'])
 
         # Reset cached property
         try:
@@ -182,9 +207,10 @@ class SessionOperations:
         """
         # TODO: set up cron job to call this method; perhaps check sessions after 
         # every 30 mins
-        self.is_active = False
-        self.expired_on = timezone.now()
-        self.save(update_fields=['is_active', 'expired_on'])
+        if self.is_active:
+            self.is_active = False
+            self.expired_on = timezone.now()
+            self.save(update_fields=['is_active', 'expired_on'])
 
     def delete_for_users(self, users: Iterable) -> list:
         """

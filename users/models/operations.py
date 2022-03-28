@@ -11,24 +11,42 @@ class UserOperations:
     def deactivate(self):
         """Mark user as inactive but allow his record in database."""
         # Don't actually delete user's account, mark it as inactive
-        self.deactivated_on = timezone.now()
-        self.is_active = False
-        self.save(update_fields=['is_active', 'deactivated_on'])
+        if not self.is_active:
+            self.deactivated_on = timezone.now()
+            self.is_active = False
+            self.save(update_fields=['is_active', 'deactivated_on'])
 
-        # Also mark user's "existing" (non deleted) devices as deleted
-        self.existing_devices.delete()
+            # Also mark user's "existing" (non deleted) devices as deleted
+            self.existing_devices.delete()
 
     def pin_session(self, session: Session):
-        self.pinned_session = session
-        self.save(update_fields=['pinned_session'])
+        # User should be in session
+        if not session.concerns_user(self):
+            raise ValidationError(
+                _('You are not in this session'),
+                code='not_permitted'
+            )
+
+        # User should not have deleted session
+        if session in self.deleted_sessions.all():
+            raise ValidationError(
+                _('You are not in this session'),
+                code='not_permitted'
+            )
+
+        if session != self.pinned_session:
+            self.pinned_session = session
+            self.save(update_fields=['pinned_session'])
 
     def unpin_session(self):
-        self.pinned_session = None
-        self.save(update_fields=['pinned_session'])
+        if self.pinned_session:
+            self.pinned_session = None
+            self.save(update_fields=['pinned_session'])
 
-    def is_in_session(self, session: Session):
+    def is_presently_in_session(self, session: Session):
         """
-        Return whether the user is in the session (if the user has any device in the session)
+        Return whether the user is presently in the session 
+        (if the user has any device in the session)
         """
         return self.id in session.present_devices.values_list('user_id', flat=True)
 
@@ -36,10 +54,17 @@ class UserOperations:
         return self == session.creator_device.user
 
     def is_transaction_creator(self, transaction: Transaction):
-        return self == transaction.from_device.user 
+        return self == transaction.from_user 
 
     def delete_session(self, session: Session):
         """Remove user from list of users that can view session"""
+        # User should be in session
+        if not session.concerns_user(self):
+            raise ValidationError(
+                _('You are not in this session'),
+                code='not_permitted'
+            )
+
         if not self.has_deleted_session(session):
             return session.delete_for_users([self])
 
@@ -48,6 +73,13 @@ class UserOperations:
         Remove user from list of users that can view transaction. 
         If `delete_for_all` is true, user needs to have GOLDEN plan.
         """
+        # User should be in transaction
+        if not transaction.concerns_user(self):
+            raise ValidationError(
+                _('You are not in this transaction'),
+                code='not_permitted'
+            )
+
         if not delete_for_all:
             if self.has_deleted_transaction(transaction):
                 return 
@@ -90,6 +122,13 @@ class UserOperations:
         return self in transaction.bookmarkers.all()
 
     def bookmark_transaction(self, transaction: Transaction):
+        # User should be in transaction
+        if not transaction.concerns_user(self):
+            raise ValidationError(
+                _('You are not in this transaction'),
+                code='not_permitted'
+            )
+
         if not self.has_bookmarked_transaction(transaction):
             return TransactionBookmark.objects.create(user=self, transaction=transaction)
 

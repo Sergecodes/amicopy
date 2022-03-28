@@ -5,15 +5,14 @@ from users.serializers import UserSerializer
 
 
 class DeviceSerializer(serpy.Serializer):
-    browser_session_key = serpy.StrField()
-    ip_address = serpy.StrField()
+    # browser_session_key = serpy.StrField()
+    # ip_address = serpy.StrField()
+    # deleted_on = SerpyDateTimeField()
     display_name = serpy.StrField()
-    deleted_on = SerpyDateTimeField()
     user = UserSerializer()
 
 
 class SessionSerializer(serpy.Serializer):
-    pk = serpy.IntField()
     uuid = serpy.StrField()
     title = serpy.StrField()
     creator_code = serpy.StrField()
@@ -25,8 +24,15 @@ class SessionSerializer(serpy.Serializer):
 
     group_name = serpy.StrField()
     creator_device = DeviceSerializer()
-    all_devices = DeviceSerializer(many=True)
-    present_devices = DeviceSerializer(many=True)
+    all_devices = serpy.MethodField()
+    present_devices = serpy.MethodField()
+    # present_devices = DeviceSerializer(many=True, attr='present_devices.all', call=True)
+
+    def get_all_devices(self, session):
+        return DeviceSerializer(session.all_devices.select_related('user'), many=True).data
+
+    def get_present_devices(self, session):
+        return DeviceSerializer(session.present_devices.select_related('user'), many=True).data
 
 
 class TransactionSerializer(serpy.Serializer):
@@ -37,10 +43,13 @@ class TransactionSerializer(serpy.Serializer):
 
     session = SessionSerializer()
     from_device = DeviceSerializer()
-    to_devices = DeviceSerializer(many=True)
+    to_devices = serpy.MethodField()
 
     def get_file_url(self, transaction):
         return transaction.files_archive.url
+
+    def get_to_devices(self, transaction):
+        return DeviceSerializer(transaction.to_devices.select_related('user'), many=True).data
 
 
 
