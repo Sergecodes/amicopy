@@ -96,12 +96,12 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
         if not self.browser_session_key and not self.user:
             raise ValidationError(
                 _("Both the browser session key and user can't be null"),
-                code='invalid'
+                code='INVALID'
             )
 
     def save(self, *args, **kwargs):
         self.clean()
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'transactions\".\"device'
@@ -160,6 +160,8 @@ class Transaction(models.Model, TransactionOperations, UsesCustomSignal):
         related_query_name='deleted_transaction'
     )
 
+    num_transactions = models.PositiveIntegerField(default=0, editable=False)
+
     def __str__(self):
         if title := self.title:
             return title
@@ -176,19 +178,19 @@ class Transaction(models.Model, TransactionOperations, UsesCustomSignal):
         """Users that received the transaction, same as to_devices but returns users"""
         return get_user_model().active.filter(
             Q(device__deleted_on__isnull=True) & Q(device__in=self.to_devices)
-        )
+        ).order_by('id').distinct('id')
 
     def clean(self):
         # Ensure text_content and files_archive aren't both null
         if not self.text_content and not self.files_archive:
             raise ValidationError(
                 _("Both the text content and files archive can't be null"),
-                code='invalid'
+                code='INVALID'
             )
 
     def save(self, *args, **kwargs):
         self.clean()
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
     
     class Meta:
         db_table = 'transactions\".\"transaction'
@@ -271,16 +273,19 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
     @property
     def all_users(self):
         """Same as 'all_devices' but returns users"""
+        ## See https://docs.djangoproject.com/en/3.2/ref/models/querysets/#distinct
+        # "When you specify field names, you must provide an order_by() in the QuerySet, 
+        # and the fields in order_by() must start with the fields in distinct(), in the same order."
         return get_user_model().active.filter(
             Q(device__deleted_on__isnull=True) & Q(device__in=self.all_devices.all())
-        )
+        ).order_by('id').distinct('id')
 
     @property
     def present_users(self):
         """Same as 'present_devices' but returns users"""
         return get_user_model().active.filter(
             Q(device__deleted_on__isnull=True) & Q(device__in=self.present_devices)
-        )
+        ).order_by('id').distinct('id')
 
     @property
     def has_creator_code(self):
@@ -322,7 +327,7 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
                 else:
                     # Key wasn't unique. Try again with new key.
                     uuid = shortuuid.random(SESSION_UUID_LENGTH)
-            
+
         self.uuid = uuid
         super().save(*args, **kwargs)
 
@@ -366,10 +371,16 @@ class SessionDevices(models.Model):
         return f'Device {str(self.device)}, session {str(self.session)}'
 
     def clean(self, **kwargs):
-        print(kwargs)
         already_checked = kwargs.get('already_checked')
 
-        # Ensure no two devices have the same names
+        # Session should be active
+        if not self.session.is_active:
+            raise ValidationError(
+                _("Session is no longer active"),
+                code='INVALID'
+            )
+
+        # Ensure no two devices have the same name
         if not already_checked:
             can_add, name_found = can_add_device_name(
                 self.session.present_devices.values_list('display_name', flat=True),
@@ -380,12 +391,15 @@ class SessionDevices(models.Model):
                 raise ValidationError(
                     _("Choose another name, there's already a device with the name %s in the session") \
                         % name_found,
-                    code='invalid'
+                    code='INVALID'
                 )
 
     def save(self, *args, **kwargs):
         self.clean(**kwargs)
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
+
+        # Pass argument to post-save signal 
+        self.user_was_already_in_session = kwargs.get('user_in_session')
 
     class Meta:
         db_table = 'transactions\".\"session_with_devices'

@@ -17,9 +17,9 @@ class WS_MESSAGE_TYPE(enum.Enum):
     ERROR = 'ERROR'
     REQUEST_JOIN = 'REQUEST_JOIN'
     ENTER = 'ENTER'  
-    LEAVE = 'LEAVE'                 # Used when a user leaves a session
-    TRANSACTION = 'TRANSACTION'     # Used when there's a new transaction
-    SESSION_END = 'SESSION_END'     # Used when creator ends a session
+    LEFT = 'LEFT'                 # Used when a user leaves a session
+    NEW_TRANSACTION = 'NEW_TRANSACTION'     # Used when there's a new transaction
+    SESSION_ENDED = 'SESSION_ENDED'     # Used when creator ends a session
 
     INVALID_SESSION = 'INVALID_SESSION'
     INVALID_DEVICE = 'INVALID_DEVICE'
@@ -29,12 +29,13 @@ class WS_MESSAGE_TYPE(enum.Enum):
 class API_MESSAGE_TYPE(enum.Enum):
     INVALID_CREATOR_CODE = 'INVALID_CREATOR_CODE'
     NO_CREATOR_CODE = 'NO_CREATOR_CODE'
+    UNAUTHENTICATED = 'UNAUTHENTICATED'
     NOT_PERMITTED = 'NOT_PERMITTED'
     INVALID_SESSION = 'INVALID_SESSION'
     INVALID_DEVICE = 'INVALID_DEVICE'
     NOT_IN_SESSION = 'NOT_IN_SESSION'
     NEW_DEVICES_BLOCKED = 'NEW_DEVICES_BLOCKED'
-    NEW_DEVICES_UNBLOCKED = 'NEW_DEVICES_UNBLOCKED'
+    NEW_DEVICES_ALLOWED = 'NEW_DEVICES_ALLOWED'
 
 
 # # Used in channels

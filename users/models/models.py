@@ -86,6 +86,13 @@ class User(AbstractUser, UserOperations):
         related_query_name='user',
     )
 
+    num_sessions_created = models.PositiveIntegerField(default=0, editable=False)
+    num_sessions_assisted = models.PositiveIntegerField(default=0, editable=False)
+    num_transactions_sent = models.PositiveIntegerField(default=0, editable=False)
+    # num_transactions_received = models.PositiveIntegerField(default=0, editable=False)
+    # The number of active sessions that user is in. (see @property ongoing_sessions)
+    num_ongoing_sessions = models.PositiveIntegerField(default=0, editable=False)
+
     objects = UserManager()
 
     @classproperty
@@ -108,7 +115,7 @@ class User(AbstractUser, UserOperations):
     def existing_devices(self):
         """
         Return the devices that haven't been deleted. 
-        All things been normal, devices will never be deleted.
+        All things been normal, devices are "deleted" only when the user is deactivated.
         """
         return self.devices.filter(deleted_on__isnull=True)
 

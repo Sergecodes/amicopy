@@ -35,7 +35,8 @@ def get_session_or_404(session_uuid):
         return True, session
     except Session.DoesNotExist:
         return False, Response({
-            'msg_type': API_MESSAGE_TYPE.INVALID_SESSION.value,
+            'type': API_MESSAGE_TYPE.INVALID_SESSION.value,
+            'message': _("This session does not exist or is no longer active")
         }, status=HTTP_404_NOT_FOUND)
 
 

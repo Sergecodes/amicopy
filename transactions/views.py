@@ -73,7 +73,8 @@ def session_detail(request, uuid):
     elif request.method == 'DELETE':
         if user.is_anonymous:
             return Response({
-                'msg_type': API_MESSAGE_TYPE.NOT_PERMITTED.value
+                'type': API_MESSAGE_TYPE.UNAUTHENTICATED.value,
+                'message': _('You need to be logged in to be able to delete a session')
             }, status=status.HTTP_401_UNAUTHORIZED)
 
         user.delete_session(session)
@@ -104,11 +105,17 @@ def verify_creator_code(request, code, uuid):
         creator_code = session.creator_code
 
         if not creator_code:
-            return Response({'msg_type': API_MESSAGE_TYPE.NO_CREATOR_CODE.value})
+            # NOTE on client side, if session doesn't have creator code,
+            # don't ask user to input it.
+            return Response({
+                'type': API_MESSAGE_TYPE.NO_CREATOR_CODE.value,
+                'message': _('This session does not have a creator code')
+            })
 
         if creator_code != code:
             return Response({
-                'msg_type': API_MESSAGE_TYPE.INVALID_CREATOR_CODE.value
+                'type': API_MESSAGE_TYPE.INVALID_CREATOR_CODE.value,
+                'message': _('Incorrect code')
             }, status=status.HTTP_400_BAD_REQUEST)
 
     response = result
@@ -127,13 +134,14 @@ def toggle_allow_new_devices(request, uuid):
     # User should be owner of session
     if request.user != session.creator:
         return Response({
-            'msg_type': API_MESSAGE_TYPE.NOT_PERMITTED.value
+            'type': API_MESSAGE_TYPE.NOT_PERMITTED.value,
+            'message': _('You are not the owner of this session')
         }, status=status.HTTP_403_FORBIDDEN)
 
     if session.accepts_new_devices:
         session.block_new_devices()
-        return Response({'msg_type': API_MESSAGE_TYPE.NEW_DEVICES_BLOCKED.value})
+        return Response({'type': API_MESSAGE_TYPE.NEW_DEVICES_BLOCKED.value})
     else:
         session.allow_new_devices()
-        return Response({'msg_type': API_MESSAGE_TYPE.NEW_DEVICES_UNBLOCKED.value})
+        return Response({'type': API_MESSAGE_TYPE.NEW_DEVICES_ALLOWED.value})
 

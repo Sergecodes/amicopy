@@ -38,9 +38,9 @@
 # 		user.is_active = True
 # 		user.save()
 
-# 		return Response({'msg_type': API_MESSAGE_TYPE.EMAIL_CONFIRMED.value}, status=status.HTTP_200_OK)
+# 		return Response({'type': API_MESSAGE_TYPE.EMAIL_CONFIRMED.value}, status=status.HTTP_200_OK)
 # 	else:
-# 		return Response({'msg_type': API_MESSAGE_TYPE.LINK_EXPIRED.value}, status=status.HTTP_400_BAD_REQUEST)
+# 		return Response({'type': API_MESSAGE_TYPE.LINK_EXPIRED.value}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # class UserCreate(APIView):
@@ -65,7 +65,7 @@
 # 		to_email = new_user.email
 # 		send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [to_email])
 
-# 		return Response({'msg_type': API_MESSAGE_TYPE.EMAIL_SENT.value}, status=status.HTTP_200_OK)
+# 		return Response({'type': API_MESSAGE_TYPE.EMAIL_SENT.value}, status=status.HTTP_200_OK)
 
 # 	def _form_invalid(self, form):
 # 		return Response(form.errors.as_json(), status=status.HTTP_400_BAD_REQUEST)

@@ -1,13 +1,17 @@
+- add a settings model:
+    hide transaction content by default(show only on hover)
+
+
 TODO:
     *TODAY MONDAY(28/03)
-        - for api responses, include message and type keys.
+        # - for api responses, include message and type keys.
+    #     - create fields number of ... sessions_created, sessions_partake, transactions created, transactions received 
+    # on User model and appropriately increment their values.
         - create all use cases(consumers and api based)
-        - create fields number of ... sessions_created, sessions_partake, transactions created, transactions received 
-    on User model and appropriately increment their values.
 
     *TUESDAY(29/03)
-        - fix s3 bucket
-        - handle file upload and limits too; link it with channels
+        - fix s3 bucket and test obviously
+        - handle file upload and limits too; link it with channels; test obviously
         - setup django-admin with grappelli
         - install django debug toolbar
 

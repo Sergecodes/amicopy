@@ -24,14 +24,14 @@ class UserOperations:
         if not session.concerns_user(self):
             raise ValidationError(
                 _('You are not in this session'),
-                code='not_permitted'
+                code='NOT_PERMITTED'
             )
 
         # User should not have deleted session
         if session in self.deleted_sessions.all():
             raise ValidationError(
                 _('You are not in this session'),
-                code='not_permitted'
+                code='NOT_PERMITTED'
             )
 
         if session != self.pinned_session:
@@ -51,7 +51,7 @@ class UserOperations:
         return self.id in session.present_devices.values_list('user_id', flat=True)
 
     def is_session_creator(self, session: Session):
-        return self == session.creator_device.user
+        return self == session.creator
 
     def is_transaction_creator(self, transaction: Transaction):
         return self == transaction.from_user 
@@ -62,7 +62,7 @@ class UserOperations:
         if not session.concerns_user(self):
             raise ValidationError(
                 _('You are not in this session'),
-                code='not_permitted'
+                code='NOT_PERMITTED'
             )
 
         if not self.has_deleted_session(session):
@@ -77,7 +77,7 @@ class UserOperations:
         if not transaction.concerns_user(self):
             raise ValidationError(
                 _('You are not in this transaction'),
-                code='not_permitted'
+                code='NOT_PERMITTED'
             )
 
         if not delete_for_all:
@@ -90,20 +90,20 @@ class UserOperations:
         if not self.is_golden:
             raise ValidationError(
                 _('You need to have the GOLDEN plan to delete transactions for all users'),
-                code='not_permitted'
+                code='NOT_PERMITTED'
             )
 
         if not self.is_transaction_creator(transaction):
             raise ValidationError(
                 _('You are not the creator of this transaction'),
-                code='not_permitted'
+                code='NOT_PERMITTED'
             )
         
         session = transaction.session
         if not session.is_active:
             raise ValidationError(
                 _('Sorry, this session is no longer active.'),
-                code='not_permitted'
+                code='NOT_PERMITTED'
             )
 
         # User has a GOLDEN plan and they want to delete the transaction for all users
@@ -126,7 +126,7 @@ class UserOperations:
         if not transaction.concerns_user(self):
             raise ValidationError(
                 _('You are not in this transaction'),
-                code='not_permitted'
+                code='NOT_PERMITTED'
             )
 
         if not self.has_bookmarked_transaction(transaction):

@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from typing import Iterable
@@ -19,6 +20,12 @@ class DeviceOperations:
         sd_obj.is_still_present = False
         sd_obj.save(update_fields=['is_still_present'])
 
+        # If user has no other device in the session, decrement their num_ongoing_sessions
+        user = self.user
+        if user and user not in session.present_users:
+            user.num_ongoing_sessions = F('num_ongoing_sessions') - 1
+            user.save(update_fields=['num_ongoing_sessions'])
+
         # Reset cached property
         try:
             del self.ongoing_sessions
@@ -30,7 +37,7 @@ class DeviceOperations:
         if not self == session.creator_device:
             raise ValidationError(
                 _("Sessions can only be ended by the device that started them"),
-                code='not_permitted'
+                code='NOT_PERMITTED'
             )
 
         session.end()
@@ -107,32 +114,32 @@ class SessionOperations:
         if not user and device.ongoing_sessions.count() == MAX_NUM_SESSIONS_UNAUTH_USERS:
             raise ValidationError(
                 _("You can be in at most %d active session") % MAX_NUM_SESSIONS_UNAUTH_USERS,
-                code='not_permitted'
+                code='NOT_PERMITTED'
             )
 
         if user:
-            user_num_ongoing_sessions = user.ongoing_sessions.count()
+            user_num_ongoing_sessions = user.num_ongoing_sessions
             if user.is_normal and user_num_ongoing_sessions == MAX_NUM_SESSIONS_NORMAL_USERS:
                 raise ValidationError(
                     _("You can be in at most %d active session") % MAX_NUM_SESSIONS_NORMAL_USERS,
-                    code='not_permitted'
+                    code='NOT_PERMITTED'
                 )
             elif user.is_premium and user_num_ongoing_sessions == MAX_NUM_SESSIONS_PREMIUM_USERS:
                 raise ValidationError(
                     _("You can be in at most %d active sessions") % MAX_NUM_SESSIONS_PREMIUM_USERS,
-                    code='not_permitted'
+                    code='NOT_PERMITTED'
                 )
             elif user.is_golden and user_num_ongoing_sessions == MAX_NUM_SESSIONS_GOLDEN_USERS:
                 raise ValidationError(
                     _("You can be in at most %d active sessions") % MAX_NUM_SESSIONS_GOLDEN_USERS,
-                    code='not_permitted'
+                    code='NOT_PERMITTED'
                 )
 
         # Check whether session accepts new devices
         if not self.accepts_new_devices:
             raise ValidationError(
                 _('This session does not accept new devices'),
-                code='not_permitted'
+                code='NOT_PERMITTED'
             )
 
         # Check that there's no other device in the session with the same name
@@ -145,13 +152,18 @@ class SessionOperations:
             raise ValidationError(
                 _("Choose another name, there's already a device with the name %s in the session") \
                     % name_found,
-                code='invalid'
+                code='INVALID'
             )
+
+        # Verify if device user is in session
+        # This will be used in the post signal when incrementing user's
+        # number of assisted sessions
+        user_in_session = user in self.all_users
 
         # Instantiate class manually instead of calling create object so as to 
         # pass the already_checked argument
         session_device_obj = SessionDevices(session=self, device=device)
-        session_device_obj.save(already_checked=True)
+        session_device_obj.save(already_checked=True, user_in_session=user_in_session)
 
         # Reset cached property
         try:
@@ -166,7 +178,7 @@ class SessionOperations:
         if not self.is_active:
             raise ValidationError(
                 _('Session is no longer active'),
-                code='invalid'
+                code='INVALID'
             )
 
         if not self.accepts_new_devices:
@@ -177,7 +189,7 @@ class SessionOperations:
         if not self.is_active:
             raise ValidationError(
                 _('Session is no longer active'),
-                code='invalid'
+                code='INVALID'
             )
 
         if self.accepts_new_devices:
@@ -190,6 +202,9 @@ class SessionOperations:
             self.is_active = False
             self.ended_on = timezone.now()
             self.save(update_fields=['is_active', 'ended_on'])
+
+            # Decrement present users ongoing sessions
+            self.present_users.update(num_ongoing_sessions=F('num_ongoing_sessions') - 1)
 
         # Reset cached property
         try:
@@ -211,6 +226,9 @@ class SessionOperations:
             self.is_active = False
             self.expired_on = timezone.now()
             self.save(update_fields=['is_active', 'expired_on'])
+
+            # Decrement present users ongoing sessions
+            self.present_users.update(num_ongoing_sessions=F('num_ongoing_sessions') - 1)
 
     def delete_for_users(self, users: Iterable) -> list:
         """
