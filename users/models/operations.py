@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from transactions.constants import API_MESSAGE_TYPE
 from transactions.models.models import Transaction, Session, TransactionBookmark
 
 
@@ -24,14 +25,14 @@ class UserOperations:
         if not session.concerns_user(self):
             raise ValidationError(
                 _('You are not in this session'),
-                code='NOT_PERMITTED'
+                code=API_MESSAGE_TYPE.NOT_PERMITTED.value
             )
 
         # User should not have deleted session
         if session in self.deleted_sessions.all():
             raise ValidationError(
                 _('You are not in this session'),
-                code='NOT_PERMITTED'
+                code=API_MESSAGE_TYPE.NOT_PERMITTED.value
             )
 
         if session != self.pinned_session:
@@ -62,7 +63,7 @@ class UserOperations:
         if not session.concerns_user(self):
             raise ValidationError(
                 _('You are not in this session'),
-                code='NOT_PERMITTED'
+                code=API_MESSAGE_TYPE.NOT_PERMITTED.value
             )
 
         if not self.has_deleted_session(session):
@@ -77,7 +78,7 @@ class UserOperations:
         if not transaction.concerns_user(self):
             raise ValidationError(
                 _('You are not in this transaction'),
-                code='NOT_PERMITTED'
+                code=API_MESSAGE_TYPE.NOT_PERMITTED.value
             )
 
         if not delete_for_all:
@@ -90,20 +91,20 @@ class UserOperations:
         if not self.is_golden:
             raise ValidationError(
                 _('You need to have the GOLDEN plan to delete transactions for all users'),
-                code='NOT_PERMITTED'
+                code=API_MESSAGE_TYPE.NOT_PERMITTED.value
             )
 
         if not self.is_transaction_creator(transaction):
             raise ValidationError(
                 _('You are not the creator of this transaction'),
-                code='NOT_PERMITTED'
+                code=API_MESSAGE_TYPE.NOT_PERMITTED.value
             )
         
         session = transaction.session
         if not session.is_active:
             raise ValidationError(
                 _('Sorry, this session is no longer active.'),
-                code='NOT_PERMITTED'
+                code=API_MESSAGE_TYPE.NOT_PERMITTED.value
             )
 
         # User has a GOLDEN plan and they want to delete the transaction for all users
@@ -126,7 +127,7 @@ class UserOperations:
         if not transaction.concerns_user(self):
             raise ValidationError(
                 _('You are not in this transaction'),
-                code='NOT_PERMITTED'
+                code=API_MESSAGE_TYPE.NOT_PERMITTED.value
             )
 
         if not self.has_bookmarked_transaction(transaction):

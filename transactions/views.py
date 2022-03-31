@@ -1,22 +1,25 @@
-from django.shortcuts import render
+from django.core.exceptions import ValidationError
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from ipware import get_client_ip
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .constants import API_MESSAGE_TYPE
-from .forms import SessionForm
+from .constants import (
+    API_MESSAGE_TYPE, MAX_NUM_ONGOING_SESSIONS_UNAUTH_USERS, 
+)
+from .forms import SessionForm, DeviceForm
 from .models.models import Device
 from .serializers import SessionSerializer
 from .utils import get_session_or_404
+from .validators import validate_user_create_session
 
 
 @method_decorator(permission_classes([IsAuthenticated]), name='get')
-@method_decorator(permission_classes([IsAuthenticatedOrReadOnly]), name='post')
+@method_decorator(permission_classes([AllowAny]), name='post')
 class SessionList(APIView):
     """List user's sessions or create new session"""
 
@@ -27,29 +30,66 @@ class SessionList(APIView):
 
     def post(self, request, format=None):
         """
-        Required: title, display_name(device display name)
-        Optional: code (creator code)
+        Required: 
+            `title`(session title)
+        Optional: 
+            `code` (session creator code)
+            `display_name`(device display name or nothing to use username), 
         """
-        form = SessionForm(request.data)
-        if form.is_valid():
-            request_session, user = request.session, request.user
-            session_obj = form.save(commit=False)
+
+        data, request_session, user = request.data, request.session, request.user
+        # Verify if user is permitted.
+        try:
+            validate_user_create_session(user)
+        except ValidationError as e:
+            return Response({
+                'message': e.message,
+                'type': e.code
+            }, status.HTTP_403_FORBIDDEN)
+
+        session_form = SessionForm(data)
+        device_form = DeviceForm(user if user.is_authenticated else None, data)
+
+        if device_form.is_valid():
+            display_name = device_form.save(commit=False).display_name
+        else:
+            return Response(device_form.errors.as_json(), status.HTTP_400_BAD_REQUEST)
+
+        if session_form.is_valid():
+            session_obj = session_form.save(commit=False)
 
             ip, is_routable = get_client_ip(request)
-            session_obj.creator_device = Device.objects.create(
-                ip_address=ip, 
-                display_name=request.data.get('display_name', user.username),
-                browser_session_key=request_session._get_or_create_session_key(), 
-                user=user if user.is_authenticated else None
-            )
+            try:
+                device, is_new_device = Device.objects.get_or_create(
+                    browser_session_key=request_session._get_or_create_session_key(), 
+                    defaults={
+                        'ip_address': ip,
+                        'display_name': display_name,
+                        'user': user if user.is_authenticated else None
+                    }
+                )
+            except ValidationError as e:
+                return Response({
+                    'message': e.message, 
+                    'type': e.code
+                }, status.HTTP_400_BAD_REQUEST)
 
+            # Verify if device is permitted to create another session.
+            if user.is_anonymous and not is_new_device and \
+                device.num_ongoing_sessions == (count := MAX_NUM_ONGOING_SESSIONS_UNAUTH_USERS):
+                return Response({
+                    'message': _("You can be in at most %d active session") % count,
+                    'type': API_MESSAGE_TYPE.NOT_PERMITTED.value
+                }, status.HTTP_403_FORBIDDEN)
+
+            session_obj.creator_device = device
             session_obj.save()
             return Response({
                 'title': session_obj.title,
                 'accepts_new_devices': session_obj.accepts_new_devices
             }, status.HTTP_201_CREATED)
         else:
-            return Response(form.errors.as_json(), status=status.HTTP_400_BAD_REQUEST) 
+            return Response(session_form.errors.as_json(), status.HTTP_400_BAD_REQUEST) 
 
 
 @api_view(['GET', 'DELETE'])
@@ -75,7 +115,7 @@ def session_detail(request, uuid):
             return Response({
                 'type': API_MESSAGE_TYPE.UNAUTHENTICATED.value,
                 'message': _('You need to be logged in to be able to delete a session')
-            }, status=status.HTTP_401_UNAUTHORIZED)
+            }, status.HTTP_401_UNAUTHORIZED)
 
         user.delete_session(session)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -145,3 +185,23 @@ def toggle_allow_new_devices(request, uuid):
         session.allow_new_devices()
         return Response({'type': API_MESSAGE_TYPE.NEW_DEVICES_ALLOWED.value})
 
+
+## Use cases to views/consumers:
+# - create session: via api
+# - end/close session: via websocket consumer command
+# - join session: via websocket consumer comand; when joining, add constraint to prevent 
+# using multiple browsers (like what whatsapp does);
+# - leave session: websocket consumer
+# - end session: via websocket consumer
+# - allow/block new devices: via ws consumer
+
+# - create transaction: websocket
+- delete transaction 4 single user(self): ws
+- get transactions: api
+- delete transaction for all users: ws
+- pin session: api
+- bookmark transaction: api
+# TODO change database_sync_to_async calls to use callables
+# TODO remove session_uuid from consumer methods and use self.current_session instead
+# SAME for device_uuid
+# TODO remove self.sessions (use something else )

@@ -8,6 +8,7 @@ class DeviceSerializer(serpy.Serializer):
     # browser_session_key = serpy.StrField()
     # ip_address = serpy.StrField()
     # deleted_on = SerpyDateTimeField()
+    uuid = serpy.StrField()
     display_name = serpy.StrField()
     user = UserSerializer()
 
@@ -36,6 +37,7 @@ class SessionSerializer(serpy.Serializer):
 
 
 class TransactionSerializer(serpy.Serializer):
+    uuid = serpy.StrField()
     title = serpy.StrField()
     text_content = serpy.StrField()
     files_archive_url = serpy.MethodField('get_file_url')

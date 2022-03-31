@@ -4,6 +4,11 @@ from django.utils.functional import classproperty, cached_property
 from django.utils.translation import gettext_lazy as _
 
 from core.fields import ProperEmailField
+from transactions.constants import (
+    MAX_NUM_ONGOING_SESSIONS_GOLDEN_USERS,
+    MAX_NUM_ONGOING_SESSIONS_NORMAL_USERS,
+    MAX_NUM_ONGOING_SESSIONS_PREMIUM_USERS,
+)
 from transactions.models.models import Session, Transaction, TransactionBookmark
 from ..validators import UsernameValidator
 from .managers import UserManager
@@ -110,6 +115,18 @@ class User(AbstractUser, UserOperations):
     @classproperty
     def active_users(cls):
         return cls.active
+
+    @cached_property
+    def can_create_session(self):
+        user_num_ongoing_sessions = self.num_ongoing_sessions
+        if self.is_normal and user_num_ongoing_sessions == MAX_NUM_ONGOING_SESSIONS_NORMAL_USERS:
+            return False
+        elif self.is_premium and user_num_ongoing_sessions == MAX_NUM_ONGOING_SESSIONS_PREMIUM_USERS:
+            return False
+        elif self.is_golden and user_num_ongoing_sessions == MAX_NUM_ONGOING_SESSIONS_GOLDEN_USERS:
+            return False
+            
+        return True
 
     @property
     def existing_devices(self):
@@ -222,6 +239,7 @@ class Settings(models.Model):
         User, 
         db_column='user_id',
         on_delete=models.CASCADE,
+        primary_key=True,
         related_name='settings',
         related_query_name='settings'
     )
@@ -231,6 +249,15 @@ class Settings(models.Model):
 
     def __str__(self):
         return f"{str(self.user)}'s settings"
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.site_settings = {
+                # Hide transaction by default and show only on hover
+                'hide_transaction': False
+            }
+
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'users\".\"settings'

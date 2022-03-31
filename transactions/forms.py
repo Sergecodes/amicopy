@@ -1,5 +1,6 @@
 from ckeditor.widgets import CKEditorWidget
 from django import forms
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from .models.models import Device, Session, Transaction
@@ -9,6 +10,26 @@ class DeviceForm(forms.ModelForm):
     class Meta:
         model = Device
         fields = ['display_name']
+
+    def __init__(self, user=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean_display_name(self):
+        user = self.user
+        print(user)
+        display_name = self.cleaned_data.get('display_name', '')
+
+        if not display_name:
+            if user:
+                display_name = user.username
+            else:
+                raise ValidationError(
+                    _('No display name and no user'),
+                    code='INVALID'
+                )
+
+        return display_name
 
 
 class TransactionForm(forms.ModelForm):

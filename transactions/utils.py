@@ -60,7 +60,7 @@ def get_session_or_error(session_uuid):
 
 
 @database_sync_to_async
-def get_device_or_error(device_id):
+def get_device_or_error(device_uuid):
     """
     Tries to fetch a device. Raise encountered errors
     """
@@ -68,6 +68,32 @@ def get_device_or_error(device_id):
 
     # Find the device they requested 
     try:
-        return Device.objects.get(id=device_id)
+        return Device.objects.get(uuid=device_uuid)
     except Device.DoesNotExist:
         raise WSClientError(WS_MESSAGE_TYPE.INVALID_DEVICE.value)
+
+
+@database_sync_to_async
+def is_session_creator(device, session):
+    return device == session.creator_device
+
+
+@database_sync_to_async
+def get_or_create_device_via_browser(browser_key, **data):
+    """
+    Try to get a device via its `browser_key`. 
+    If not found, create new device.
+    `data` should have keys: ip, display_name, user
+    """
+    from .models.models import Device
+
+    # NOTE that a different browser counts as a different device
+    return Device.objects.get_or_create(
+        browser_session_key=browser_key, 
+        defaults={
+            'ip_address': data['ip'],
+            'display_name': data['display_name'],
+            'user': user if (user := data['user']).is_authenticated else None
+        }
+    )
+

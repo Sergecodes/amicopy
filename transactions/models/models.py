@@ -1,5 +1,6 @@
 import os
 import shortuuid
+import uuid
 from ckeditor.fields import RichTextField
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -36,7 +37,8 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
     # Used when user issues anonymous transactions; max length is 40chars let's just leave 60 for now
     # see https://docs.djangoproject.com/en/3.2/topics/http/sessions/#extending-database-backed-session-engines
     # see also django.contrib.sessions.models.Session
-    browser_session_key = models.CharField(max_length=60, unique=True)
+    browser_session_key = models.CharField(max_length=60, unique=True, editable=False)
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user = models.ForeignKey(
         User,
@@ -67,6 +69,27 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
     def __str__(self):
         return f'{self.display_name}; {self.user}'
 
+    def save(self, *args, **kwargs):
+        # If object is still getting created, try to save it.
+        # If there's an error because the auto generated uuid value is a duplicate,
+        # then regenerate till unique one is obtained.
+        # Note however that the chances of having a duplicate uuid are very slim
+
+        uuid = self.uuid
+        if not self.pk:
+            while True:
+                try:
+                    Device.objects.get(uuid=uuid)
+                except Device.DoesNotExist:
+                    # uuid was unique, we can go out of loop
+                    break
+                else:
+                    # uuid wasn't unique. Try again with new uuid.
+                    uuid = uuid.uuid4()
+
+        self.uuid = uuid
+        super().save(*args, **kwargs)
+
     def delete(self, really_delete=False):
         """
         delete() isn't called if related objects are deleted via CASCADE. 
@@ -90,6 +113,10 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
     def ongoing_sessions(self):
         """Return the sessions that are active and the device is presently in"""
         return self.sessions.filter(is_active=True, session_device__is_still_present=True)
+
+    @property
+    def num_ongoing_sessions(self):
+        return self.ongoing_sessions.count()
 
     def clean(self):
         # Ensure browser_session_key and user aren't both null
@@ -116,6 +143,7 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
 
 
 class Transaction(models.Model, TransactionOperations, UsesCustomSignal):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     title = models.CharField(
         _('title'),
         help_text=_("Enter a name of at most 100 characters to identify this transaction"),
@@ -160,14 +188,20 @@ class Transaction(models.Model, TransactionOperations, UsesCustomSignal):
         related_query_name='deleted_transaction'
     )
 
-    num_transactions = models.PositiveIntegerField(default=0, editable=False)
-
     def __str__(self):
         if title := self.title:
             return title
 
         to_devices_names = self.to_devices.values_list('display_name', flat=True)
         return _("From %s to %s") % (self.from_device.display_name, list(to_devices_names))
+
+    @property
+    def group_name(self):
+        """
+        Returns the Channels Group name that sockets should subscribe to to know
+        devices that are concerned in a transaction.
+        """
+        return 'transaction_%s' % str(self.uuid)
 
     @cached_property
     def from_user(self):
@@ -190,6 +224,21 @@ class Transaction(models.Model, TransactionOperations, UsesCustomSignal):
 
     def save(self, *args, **kwargs):
         self.clean()
+        
+        # Ensure uuid is truly unique xD
+        uuid = self.uuid
+        if not self.pk:
+            while True:
+                try:
+                    Transaction.objects.get(uuid=uuid)
+                except Transaction.DoesNotExist:
+                    # uuid was unique, we can go out of loop
+                    break
+                else:
+                    # uuid wasn't unique. Try again with new uuid.
+                    uuid = uuid.uuid4()
+
+        self.uuid = uuid
         super().save(*args, **kwargs)
     
     class Meta:
@@ -254,6 +303,8 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
         related_name='deleted_sessions',
         related_query_name='deleted_session'
     )
+
+    num_transactions = models.PositiveIntegerField(default=0, editable=False)
 
     def __str__(self):
         return f'{self.title}, {self.uuid}'

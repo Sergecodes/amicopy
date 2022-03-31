@@ -4,10 +4,11 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from typing import Iterable
 
-from ..constants import (
-    MAX_NUM_SESSIONS_GOLDEN_USERS, MAX_NUM_SESSIONS_NORMAL_USERS,
-    MAX_NUM_SESSIONS_PREMIUM_USERS, MAX_NUM_SESSIONS_UNAUTH_USERS
+from transactions.validators import (
+    validate_user_create_session,
+    validate_device_create_session
 )
+from ..constants import API_MESSAGE_TYPE
 from ..utils import can_add_device_name
 
 
@@ -16,28 +17,32 @@ class DeviceOperations:
         """Mark device as no longer in session"""
         from .models import SessionDevices
 
-        sd_obj = SessionDevices.objects.get(device=self, session=session, session__is_active=True)
-        sd_obj.is_still_present = False
-        sd_obj.save(update_fields=['is_still_present'])
-
-        # If user has no other device in the session, decrement their num_ongoing_sessions
-        user = self.user
-        if user and user not in session.present_users:
-            user.num_ongoing_sessions = F('num_ongoing_sessions') - 1
-            user.save(update_fields=['num_ongoing_sessions'])
-
-        # Reset cached property
         try:
-            del self.ongoing_sessions
-            del session.present_devices
-        except AttributeError:
-            pass 
+            sd_obj = SessionDevices.objects.get(device=self, session=session, session__is_active=True)
+        except SessionDevices.DoesNotExist:
+            pass
+        else:
+            sd_obj.is_still_present = False
+            sd_obj.save(update_fields=['is_still_present'])
+
+            # If user has no other device in the session, decrement their num_ongoing_sessions
+            user = self.user
+            if user and user not in session.present_users:
+                user.num_ongoing_sessions = F('num_ongoing_sessions') - 1
+                user.save(update_fields=['num_ongoing_sessions'])
+
+            # Reset cached property
+            try:
+                del self.ongoing_sessions
+                del session.present_devices
+            except AttributeError:
+                pass 
 
     def end_session(self, session):
         if not self == session.creator_device:
             raise ValidationError(
                 _("Sessions can only be ended by the device that started them"),
-                code='NOT_PERMITTED'
+                code=API_MESSAGE_TYPE.NOT_PERMITTED.value
             )
 
         session.end()
@@ -86,7 +91,7 @@ class TransactionOperations:
 
 class SessionOperations:
     def concerns_user(self, user):
-        """Verify if user partook in the session."""
+        """Verify if user partook/is partaking in the session."""
         return user in self.all_users
 
     def add_device(self, device):
@@ -95,51 +100,20 @@ class SessionOperations:
         """
         from .models import SessionDevices
 
-        # # Check and validate creator code. If session doesn't have a creator code, 
-        # # just ignore. 
-        # if self.has_creator_code and self.creator_code != creator_code:
-        #     raise ValidationError(
-        #         _('Incorrect creator code'),
-        #         code='invalid_code'
-        #     )
-
-        ## Check if device is permitted to join a session
-        # - device without user or with free plan can be in only one active session
-        # - device with premium plan can be in max 2 sessions
-        # - device with golden plan can be in max 5 sessions
 
         # TODO do max number of sessions verifications on frontend
 
         user = device.user
-        if not user and device.ongoing_sessions.count() == MAX_NUM_SESSIONS_UNAUTH_USERS:
-            raise ValidationError(
-                _("You can be in at most %d active session") % MAX_NUM_SESSIONS_UNAUTH_USERS,
-                code='NOT_PERMITTED'
-            )
-
-        if user:
-            user_num_ongoing_sessions = user.num_ongoing_sessions
-            if user.is_normal and user_num_ongoing_sessions == MAX_NUM_SESSIONS_NORMAL_USERS:
-                raise ValidationError(
-                    _("You can be in at most %d active session") % MAX_NUM_SESSIONS_NORMAL_USERS,
-                    code='NOT_PERMITTED'
-                )
-            elif user.is_premium and user_num_ongoing_sessions == MAX_NUM_SESSIONS_PREMIUM_USERS:
-                raise ValidationError(
-                    _("You can be in at most %d active sessions") % MAX_NUM_SESSIONS_PREMIUM_USERS,
-                    code='NOT_PERMITTED'
-                )
-            elif user.is_golden and user_num_ongoing_sessions == MAX_NUM_SESSIONS_GOLDEN_USERS:
-                raise ValidationError(
-                    _("You can be in at most %d active sessions") % MAX_NUM_SESSIONS_GOLDEN_USERS,
-                    code='NOT_PERMITTED'
-                )
+        if not user:
+            validate_device_create_session(device)
+        else:
+            validate_user_create_session(user)
 
         # Check whether session accepts new devices
         if not self.accepts_new_devices:
             raise ValidationError(
                 _('This session does not accept new devices'),
-                code='NOT_PERMITTED'
+                code=API_MESSAGE_TYPE.NOT_PERMITTED.value
             )
 
         # Check that there's no other device in the session with the same name
@@ -158,7 +132,7 @@ class SessionOperations:
         # Verify if device user is in session
         # This will be used in the post signal when incrementing user's
         # number of assisted sessions
-        user_in_session = user in self.all_users
+        user_in_session = None if user is None else user in self.all_users
 
         # Instantiate class manually instead of calling create object so as to 
         # pass the already_checked argument
