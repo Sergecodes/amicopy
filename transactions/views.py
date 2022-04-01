@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from ipware import get_client_ip
@@ -8,12 +9,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .constants import (
-    API_MESSAGE_TYPE, MAX_NUM_ONGOING_SESSIONS_UNAUTH_USERS, 
-)
+from .constants import API_MESSAGE_TYPE, MAX_NUM_ONGOING_SESSIONS_UNAUTH_USERS
 from .forms import SessionForm, DeviceForm
-from .models.models import Device
-from .serializers import SessionSerializer
+from .models.models import Device, Transaction
+from .serializers import SessionSerializer, TransactionSerializer
 from .utils import get_session_or_404
 from .validators import validate_user_create_session
 
@@ -59,27 +58,21 @@ class SessionList(APIView):
             session_obj = session_form.save(commit=False)
 
             ip, is_routable = get_client_ip(request)
-            try:
-                device, is_new_device = Device.objects.get_or_create(
-                    browser_session_key=request_session._get_or_create_session_key(), 
-                    defaults={
-                        'ip_address': ip,
-                        'display_name': display_name,
-                        'user': user if user.is_authenticated else None
-                    }
-                )
-            except ValidationError as e:
-                return Response({
-                    'message': e.message, 
-                    'type': e.code
-                }, status.HTTP_400_BAD_REQUEST)
+            device, is_new_device = Device.objects.get_or_create(
+                browser_session_key=request_session._get_or_create_session_key(), 
+                defaults={
+                    'ip_address': ip,
+                    'display_name': display_name,
+                    'user': user if user.is_authenticated else None
+                }
+            )
 
             # Verify if device is permitted to create another session.
             if user.is_anonymous and not is_new_device and \
                 device.num_ongoing_sessions == (count := MAX_NUM_ONGOING_SESSIONS_UNAUTH_USERS):
                 return Response({
                     'message': _("You can be in at most %d active session") % count,
-                    'type': API_MESSAGE_TYPE.NOT_PERMITTED.value
+                    'type': API_MESSAGE_TYPE.UNAUTHENTICATED.value
                 }, status.HTTP_403_FORBIDDEN)
 
             session_obj.creator_device = device
@@ -122,6 +115,49 @@ def session_detail(request, uuid):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
+def transactions_list(request, session_uuid):
+    found, result = get_session_or_404(session_uuid)
+    user = request.user
+
+    if found:
+        session = result
+        if user.is_authenticated:
+            serializer = TransactionSerializer(user.get_transactions(session), many=True)
+            return Response(serializer.data)
+        else:
+            device = Device.objects.filter(
+                browser_session_key=request.session._get_or_create_session_key()
+            ).first()
+
+            if not device:
+                return Response()
+            else:
+                serializer = TransactionSerializer(device.get_transactions(session), many=True)
+                return Response(serializer.data)
+    else:
+        response = result
+        return response
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def transaction_detail(request, session_uuid, transaction_uuid):
+    """Retrieve a transaction from session_uuid and transaction_uuid"""
+    found, result = get_session_or_404(session_uuid)
+
+    if not found:
+        response = result
+        return response
+
+    session = result
+    transaction = get_object_or_404(Transaction, session_id=session.id, uuid=transaction_uuid)
+    serializer = TransactionSerializer(transaction)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def verify_session_exists(request, uuid):
     found, result = get_session_or_404(uuid)
 
@@ -137,6 +173,7 @@ def verify_session_exists(request, uuid):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def verify_creator_code(request, code, uuid):
     found, result = get_session_or_404(uuid)
 
@@ -174,7 +211,7 @@ def toggle_allow_new_devices(request, uuid):
     # User should be owner of session
     if request.user != session.creator:
         return Response({
-            'type': API_MESSAGE_TYPE.NOT_PERMITTED.value,
+            'type': API_MESSAGE_TYPE.NOT_SESSION_OWNER.value,
             'message': _('You are not the owner of this session')
         }, status=status.HTTP_403_FORBIDDEN)
 
@@ -186,22 +223,48 @@ def toggle_allow_new_devices(request, uuid):
         return Response({'type': API_MESSAGE_TYPE.NEW_DEVICES_ALLOWED.value})
 
 
-## Use cases to views/consumers:
-# - create session: via api
-# - end/close session: via websocket consumer command
-# - join session: via websocket consumer comand; when joining, add constraint to prevent 
-# using multiple browsers (like what whatsapp does);
-# - leave session: websocket consumer
-# - end session: via websocket consumer
-# - allow/block new devices: via ws consumer
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def toggle_pin_session(request, uuid):
+    found, result = get_session_or_404(uuid)
+    if not found:
+        return result
+        
+    session = result
+    user = request.user
 
-# - create transaction: websocket
-- delete transaction 4 single user(self): ws
-- get transactions: api
-- delete transaction for all users: ws
-- pin session: api
-- bookmark transaction: api
-# TODO change database_sync_to_async calls to use callables
-# TODO remove session_uuid from consumer methods and use self.current_session instead
-# SAME for device_uuid
-# TODO remove self.sessions (use something else )
+    if user.pinned_session:
+        user.unpin_session()
+        return Response({'type': API_MESSAGE_TYPE.UNPINNED_SESSION.value})
+    else:
+        try:
+            user.pin_session(session)
+        except ValidationError as e:
+            return Response({
+                'message': e.message,
+                'type': e.code
+            }, status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'type': API_MESSAGE_TYPE.PINNED_SESSION.value})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def toggle_bookmark_transaction(request, uuid):
+    transaction = get_object_or_404(Transaction, uuid=uuid)
+    user = request.user
+
+    if user.has_bookmarked_transaction(transaction):
+        user.unbookmark_transaction(transaction, check=False)
+        return Response({'type': API_MESSAGE_TYPE.REMOVED_BOOKMARK.value})
+    else:
+        try:
+            user.bookmark_transaction(transaction, check=False)
+        except ValidationError as e:
+            return Response({
+                'message': e.message,
+                'type': e.code
+            }, status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'type': API_MESSAGE_TYPE.ADDED_BOOKMARK.value})
+

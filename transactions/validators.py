@@ -16,17 +16,17 @@ def validate_user_create_session(user):
     if user.is_normal and user_num_ongoing_sessions == (count := MAX_NUM_ONGOING_SESSIONS_NORMAL_USERS):
         raise ValidationError(
             _("You can be in at most %d active session") % count,
-            code=API_MESSAGE_TYPE.NOT_PERMITTED.value
+            code=API_MESSAGE_TYPE.NORMAL_USER.value
         )
     elif user.is_premium and user_num_ongoing_sessions == (count := MAX_NUM_ONGOING_SESSIONS_PREMIUM_USERS):
         raise ValidationError(
             _("You can be in at most %d active sessions") % count,
-            code=API_MESSAGE_TYPE.NOT_PERMITTED.value
+            code=API_MESSAGE_TYPE.PREMIUM_USER.value
         )
     elif user.is_golden and user_num_ongoing_sessions == (count := MAX_NUM_ONGOING_SESSIONS_GOLDEN_USERS):
         raise ValidationError(
             _("You can be in at most %d active sessions") % count,
-            code=API_MESSAGE_TYPE.NOT_PERMITTED.value
+            code=API_MESSAGE_TYPE.GOLDEN_USER.value
         )
         
         
@@ -40,7 +40,7 @@ def validate_device_create_session(device):
     if device.num_ongoing_sessions == (count := MAX_NUM_ONGOING_SESSIONS_UNAUTH_USERS):
         raise ValidationError(
             _("You can be in at most %d active session") % count,
-            code=API_MESSAGE_TYPE.NOT_PERMITTED.value
+            code=API_MESSAGE_TYPE.UNAUTHENTICATED.value
         )
 
 
@@ -49,4 +49,10 @@ def validate_device_join_session(device):
     validate_device_create_session(device)
 
 
+def validate_auth_user(user):
+    if not user or user.is_anonymous:
+        raise ValidationError(
+            _('Unauthenticated'),
+            code=API_MESSAGE_TYPE.UNAUTHENTICATED.value
+        )
 

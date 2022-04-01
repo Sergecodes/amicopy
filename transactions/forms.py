@@ -3,6 +3,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from transactions.constants import API_MESSAGE_TYPE
 from .models.models import Device, Session, Transaction
 
 
@@ -26,7 +27,7 @@ class DeviceForm(forms.ModelForm):
             else:
                 raise ValidationError(
                     _('No display name and no user'),
-                    code='INVALID'
+                    code=API_MESSAGE_TYPE.INVALID.value
                 )
 
         return display_name

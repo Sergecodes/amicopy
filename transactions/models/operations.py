@@ -1,5 +1,6 @@
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.db.models import F
+from django.db.models import F, Prefetch
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from typing import Iterable
@@ -42,7 +43,7 @@ class DeviceOperations:
         if not self == session.creator_device:
             raise ValidationError(
                 _("Sessions can only be ended by the device that started them"),
-                code=API_MESSAGE_TYPE.NOT_PERMITTED.value
+                code=API_MESSAGE_TYPE.NOT_CREATOR_DEVICE.value
             )
 
         session.end()
@@ -52,6 +53,30 @@ class DeviceOperations:
             del self.ongoing_sessions
         except AttributeError:
             pass 
+
+    def get_transactions(self, session)-> list:
+        """Get device's transaction in the session excluding those they deleted"""
+        from .models import Transaction, Device
+
+        cache_key = f'device_{self.device.uuid}_deleted_transactions_uuids'
+        deleted_transactions_uuids = cache.get(cache_key, [])
+
+        transactions = Transaction.objects.filter(
+            session=session
+        ).exclude(
+            uuid__in=deleted_transactions_uuids
+        ).select_related(
+            'from_device'
+        ).prefetch_related(
+            Prefetch('to_devices', queryset=Device.objects.only('id'))
+        )
+
+        device_transactions = []
+        for transaction in transactions:
+            if transaction.concerns_device(self):
+                device_transactions.append(transaction)
+
+        return device_transactions
 
     def is_presently_in_session(self, session):
         """Is device presently in session"""
@@ -72,13 +97,16 @@ class TransactionOperations:
         """
         return user == self.from_user or user in self.to_users
 
+    def concerns_device(self, device):
+        return device == self.from_device or device in self.to_devices.all()
+
     def delete_for_users(self, users: Iterable):
         """
         Mark transaction as deleted by users `users`. 
         This means the transaction won't be displayed on `users`' list of transactions under 
         given session.
 
-        `users`: iterable of User objects(or ids?)
+        `users`: iterable of User objects
         """
         from .models import TransactionDelete
 
@@ -113,7 +141,7 @@ class SessionOperations:
         if not self.accepts_new_devices:
             raise ValidationError(
                 _('This session does not accept new devices'),
-                code=API_MESSAGE_TYPE.NOT_PERMITTED.value
+                code=API_MESSAGE_TYPE.NEW_DEVICES_BLOCKED.value
             )
 
         # Check that there's no other device in the session with the same name
@@ -126,7 +154,7 @@ class SessionOperations:
             raise ValidationError(
                 _("Choose another name, there's already a device with the name %s in the session") \
                     % name_found,
-                code='INVALID'
+                code=API_MESSAGE_TYPE.IDENTICAL_DEVICE_PRESENT.value
             )
 
         # Verify if device user is in session
@@ -152,7 +180,7 @@ class SessionOperations:
         if not self.is_active:
             raise ValidationError(
                 _('Session is no longer active'),
-                code='INVALID'
+                code=API_MESSAGE_TYPE.INACTIVE_SESSION.value
             )
 
         if not self.accepts_new_devices:
@@ -163,7 +191,7 @@ class SessionOperations:
         if not self.is_active:
             raise ValidationError(
                 _('Session is no longer active'),
-                code='INVALID'
+                code=API_MESSAGE_TYPE.INACTIVE_SESSION.value
             )
 
         if self.accepts_new_devices:
@@ -210,7 +238,7 @@ class SessionOperations:
         This means the session won't be displayed on `users`' list of sessions;
         just like WhatsApp discussions/chats.
 
-        `users`: iterable of User objects(or ids?)
+        `users`: iterable of User objects
         """
         from .models import SessionDelete
 

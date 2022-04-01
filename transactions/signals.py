@@ -75,14 +75,18 @@ def decrement_session_user_attrs(sender, instance: Session, **kwargs):
     if creator:
         creator.num_sessions_created = F('num_sessions_created') - 1
         creator.num_sessions_assisted = F('num_sessions_assisted') - 1
-
         creator.save(update_fields=['num_sessions_created', 'num_sessions_assisted'])
 
 
 @receiver(post_delete, sender=Transaction)
-def decrement_transaction_user_attrs(sender, instance: Transaction, **kwargs):
+def decrement_transaction_related_attrs(sender, instance: Transaction, **kwargs):
     # Under normal circumstances, transactions shouldn't be deleted
     creator = instance.from_user
+
+    # Update number of transactions
+    session = instance.session
+    session.num_transactions = F('num_transactions') - 1
+    session.save(update_fields=['num_transactions'])
 
     if creator:
         creator.num_transactions_sent = F('num_transactions_sent') - 1

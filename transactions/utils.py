@@ -66,11 +66,23 @@ def get_device_or_error(device_uuid):
     """
     from .models.models import Device
 
-    # Find the device they requested 
     try:
         return Device.objects.get(uuid=device_uuid)
     except Device.DoesNotExist:
         raise WSClientError(WS_MESSAGE_TYPE.INVALID_DEVICE.value)
+
+
+@database_sync_to_async
+def get_transaction_or_error(transaction_uuid):
+    """
+    Tries to fetch a transaction. Raise encountered errors
+    """
+    from .models.models import Transaction
+
+    try:
+        return Transaction.objects.get(uuid=transaction_uuid)
+    except Transaction.DoesNotExist:
+        raise WSClientError(WS_MESSAGE_TYPE.INVALID_TRANSACTION.value)
 
 
 @database_sync_to_async
@@ -96,4 +108,5 @@ def get_or_create_device_via_browser(browser_key, **data):
             'user': user if (user := data['user']).is_authenticated else None
         }
     )
+
 

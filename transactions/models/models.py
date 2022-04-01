@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from core.fields import ReadableShortUUIDField
 from core.mixins import UsesCustomSignal
 from users.validators import UsernameValidator
-from ..constants import SESSION_UUID_LENGTH, SESSION_UUID_GROUP_BY
+from ..constants import SESSION_UUID_LENGTH, SESSION_UUID_GROUP_BY, API_MESSAGE_TYPE
 from ..utils import can_add_device_name
 from .managers import DeviceManager
 from .operations import SessionOperations, TransactionOperations, DeviceOperations
@@ -123,7 +123,7 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
         if not self.browser_session_key and not self.user:
             raise ValidationError(
                 _("Both the browser session key and user can't be null"),
-                code='INVALID'
+                code=API_MESSAGE_TYPE.INVALID.value
             )
 
     def save(self, *args, **kwargs):
@@ -219,7 +219,7 @@ class Transaction(models.Model, TransactionOperations, UsesCustomSignal):
         if not self.text_content and not self.files_archive:
             raise ValidationError(
                 _("Both the text content and files archive can't be null"),
-                code='INVALID'
+                code=API_MESSAGE_TYPE.INVALID.value
             )
 
     def save(self, *args, **kwargs):
@@ -428,7 +428,7 @@ class SessionDevices(models.Model):
         if not self.session.is_active:
             raise ValidationError(
                 _("Session is no longer active"),
-                code='INVALID'
+                code=API_MESSAGE_TYPE.INACTIVE_SESSION.value
             )
 
         # Ensure no two devices have the same name
@@ -442,7 +442,7 @@ class SessionDevices(models.Model):
                 raise ValidationError(
                     _("Choose another name, there's already a device with the name %s in the session") \
                         % name_found,
-                    code='INVALID'
+                    code=API_MESSAGE_TYPE.IDENTICAL_DEVICE_PRESENT.value
                 )
 
     def save(self, *args, **kwargs):

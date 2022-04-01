@@ -1,7 +1,6 @@
 
 TODO:
     *TUESDAY(29/03)
-        - create all use cases(consumers and api based)
         - fix s3 bucket and test obviously
         - handle file upload and limits too; link it with channels; test obviously
         - setup django-admin with grappelli
@@ -20,6 +19,25 @@ TESTS:
     - test docker
     - setup cors and websocket cors, 
     - setup frontend...
+
+
+## Use cases to views/consumers:
+# - create session: via api
+# - end/close session: via websocket consumer command
+# - join session: via websocket consumer comand; when joining, add constraint to prevent 
+# using multiple browsers (like what whatsapp does);
+# - leave session: websocket consumer
+# - end session: via websocket consumer
+# - allow/block new devices: via ws consumer
+# - create transaction: websocket
+# - delete transaction 4 single user(me): ws
+# - delete transaction for all users: ws
+# - delete session: api
+# - get transactions(from session): api (note get thost that user hasn't deleted)
+# - get transaction by uuid: api
+# - pin session: api
+# - bookmark transaction: api
+
 
 
 NOTE:

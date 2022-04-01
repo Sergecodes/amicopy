@@ -128,6 +128,11 @@ class User(AbstractUser, UserOperations):
             
         return True
 
+    # @property
+    # def can_delete_transaction_for_all(self):
+    #     """This is similar to the WhatsApp feature (delete message for all)."""
+    #     return self.is_golden
+
     @property
     def existing_devices(self):
         """
