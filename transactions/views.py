@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .constants import API_MESSAGE_TYPE, MAX_NUM_ONGOING_SESSIONS_UNAUTH_USERS
-from .forms import SessionForm, DeviceForm
+from .forms import SessionDevicesForm, SessionForm, SessionDevicesForm
 from .models.models import Device, Transaction
 from .serializers import SessionSerializer, TransactionSerializer
 from .utils import get_session_or_404
@@ -47,12 +47,10 @@ class SessionList(APIView):
             }, status.HTTP_403_FORBIDDEN)
 
         session_form = SessionForm(data)
-        device_form = DeviceForm(user if user.is_authenticated else None, data)
+        session_device_form = SessionDevicesForm(user if user.is_authenticated else None, data)
 
-        if device_form.is_valid():
-            display_name = device_form.save(commit=False).display_name
-        else:
-            return Response(device_form.errors.as_json(), status.HTTP_400_BAD_REQUEST)
+        if not session_device_form.is_valid():
+            return Response(session_device_form.errors.as_json(), status.HTTP_400_BAD_REQUEST)
 
         if session_form.is_valid():
             session_obj = session_form.save(commit=False)
@@ -62,7 +60,6 @@ class SessionList(APIView):
                 browser_session_key=request_session._get_or_create_session_key(), 
                 defaults={
                     'ip_address': ip,
-                    'display_name': display_name,
                     'user': user if user.is_authenticated else None
                 }
             )
@@ -76,7 +73,12 @@ class SessionList(APIView):
                 }, status.HTTP_403_FORBIDDEN)
 
             session_obj.creator_device = device
-            session_obj.save()
+            # Pass creator_display_name to save() method, which will eventually be passed
+            # to the post_save signal to be used by the SessionDevices to set the 
+            # display_name attribute
+            session_obj.save(
+                creator_display_name=session_device_form.save(commit=False).display_name
+            )
             return Response({
                 'title': session_obj.title,
                 'accepts_new_devices': session_obj.accepts_new_devices

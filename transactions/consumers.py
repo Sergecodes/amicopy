@@ -4,10 +4,10 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-from ipware import get_client_ip
+# from ipware import get_client_ip
 
 from core.exceptions import WSClientError
-from .constants import MAX_NUM_ONGOING_SESSIONS_UNAUTH_USERS, WS_MESSAGE_TYPE
+from .constants import WS_MESSAGE_TYPE
 from .models.models import Device, Session, Transaction, TransactionToDevices
 from .utils import (
     get_transaction_or_error, get_session_or_error, 
@@ -24,8 +24,10 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
     This session consumer handles websocket connections for session clients.
     It uses AsyncJsonWebsocketConsumer, which means all the handling functions
     must be async functions, and any sync work (like ORM access) has to be
-    behind database_sync_to_async or sync_to_async. For more, read
-    http://channels.readthedocs.io/en/latest/topics/consumers.html
+    behind database_sync_to_async or sync_to_async. 
+    For more, read http://channels.readthedocs.io/en/latest/topics/consumers.html \n
+    After creating session via api, the session creator will be connected to the websocket
+    (via this consumber). Thus the session creator will always be the first to be connected.
     """
     ##### WebSocket event handlers
 
@@ -33,26 +35,33 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         """
         Called when the websocket is handshaking as part of initial connection.
         """
+        @database_sync_to_async
+        def validate_device(device):
+            validate_device_join_session(device)
 
-        # TODO check if this the right ip address?
-        request = self.scope
-        print(request['client'])
-        print(request['client'][0])
+        @database_sync_to_async
+        def validate_user(user):
+            validate_user_join_session(user)
+        
 
-        ip, is_routable = get_client_ip(request)
-        user, browser_key = request['user'], request['session']._get_or_create_session_key()
+        scope = self.scope
+        print(scope)
+        ip = scope['client'][0]
+        user, browser_key = scope['user'], scope['session']._get_or_create_session_key()
 
+        device_name = scope['url_route']['kwargs']['device_name']
         device, is_new_device = await get_or_create_device_via_browser(
             browser_key,
             ip=ip,
-            user=request['user'],
-            display_name=request['url_route']['device_name']
+            user=scope['user']
         )
 
         try:
-            session = await get_session_or_error(request['url_route']['session_uuid'])
+            session = await get_session_or_error(scope['url_route']['kwargs']['session_uuid'])
         except WSClientError as e:
-            raise DenyConnection(_('No such session exists'))
+            print(e)
+            # DenyConnection doesn't take parameters (passed parameters are ignored)
+            raise DenyConnection()
 
         # If user is anonymous, verify if limit for connections has reached
         if user.is_anonymous:
@@ -61,17 +70,18 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
             # a device
             if not is_new_device:
                 try:
-                    validate_device_join_session(device)
+                    await validate_device(device)
                 except ValidationError as e:
                     # raise WSClientError(e.message, e.code)
-                    # print(f"You can be in at most {MAX_NUM_ONGOING_SESSIONS_UNAUTH_USERS} active sessions")
                     # err_message = _("You can be in at most %d active session") % MAX_NUM_ONGOING_SESSIONS_UNAUTH_USERS
-                    raise DenyConnection(e.message)
+                    print(e)
+                    raise DenyConnection()
         else:
             try:
-                validate_user_join_session(user)
+                await validate_user(user)
             except ValidationError as e:
-                raise DenyConnection(e.message)
+                print(e)
+                raise DenyConnection()
             
         # Accept connection and store connection creator
         await self.accept()
@@ -102,6 +112,8 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         # Enable type highlighting 
         self.session: Session  = session
         self.device: Device = device
+        self.device_name: str = device_name
+        print("Connected")
 
     async def receive_json(self, content: dict):
         """
@@ -119,7 +131,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
                     await self.request_join_session()
                 case 'add': 
                     # Make them join the session
-                    await self.add_to_session()
+                    await self.add_to_session(content['display_name'])
                 case 'leave':
                     # Leave the session
                     await self.leave_session()
@@ -156,7 +168,11 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
     async def disconnect(self, close_code):
         """Called when the WebSocket closes for any reason."""
 
-        await self.leave_session()
+        # If any device was connected, leave session
+        if hasattr(self, 'device'):
+            await self.leave_session()
+
+        print("Disconnected", close_code)
 
 
     ##### Command helper methods called by receive_json
@@ -169,7 +185,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
             'type': 'group.request_join'
         })
         
-    async def add_to_session(self):
+    async def add_to_session(self, display_name):
         """
         Called by receive_json when someone(session creator) sends an add command.
         """
@@ -178,13 +194,13 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
             return self.device in self.session.present_devices
 
         @database_sync_to_async
-        def add_session_device():
-            self.session.add_device(self.device)
+        def add_session_device(display_name):
+            self.session.add_device(self.device, display_name)
 
         # Add device to session
         if not await device_in_session():
             try:
-                await add_session_device()
+                await add_session_device(display_name)
 
                 # Add them to the group so they get session messages
                 await self.channel_layer.group_add(
@@ -194,7 +210,8 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
 
                 # Notify creator of session
                 await self.channel_layer.send(self.creator_channel_name, {
-                    'type': 'group.add'
+                    'type': 'group.add',
+                    'display_name': display_name
                 })
             except ValidationError as e:
                 # Raise this error so that it will be caught by receive_json method
@@ -369,7 +386,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         # Send a message down to the client
         await self.send_json({
             'type': WS_MESSAGE_TYPE.ENTER.value,
-            'message': _('%s has joined the session') % self.device.display_name
+            'message': _('%s has joined the session') % self.device_name
         })
 
     async def group_leave(self, event):
@@ -379,7 +396,7 @@ class SessionConsumer(AsyncJsonWebsocketConsumer):
         """
         await self.send_json({
             'type': WS_MESSAGE_TYPE.LEFT.value,
-            'message': _('%s left the session') % self.device.display_name
+            'message': _('%s left the session') % self.device_name
         })
 
     async def group_end(self, event):

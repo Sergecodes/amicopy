@@ -1,27 +1,25 @@
 from django.contrib.auth import get_user_model
 from django.db.models import F
-from django.db.models.signals import post_delete, pre_save, post_save
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from .models.models import Session, Device, Transaction, SessionDevices
+from .models.models import Session, Transaction, SessionDevices
 
 User = get_user_model()
-
-
-@receiver(pre_save, sender=Device)
-def set_device_display_name(sender, instance: Device, **kwargs):
-    # If device is new and doesn't have display name set, use owner's username if available
-    if not instance.pk:
-        if not instance.display_name and (owner := instance.user):
-            instance.display_name = owner.username
 
 
 @receiver(post_save, sender=Session)
 def set_session_related_attrs(sender, instance: Session, created: bool, **kwargs):
     if created:
         # Add creator device to devices list
-        instance.all_devices.add(instance.creator_device_id)
+        SessionDevices.objects.create(
+            session=instance,
+            device_id=instance.creator_device_id,
+            # There's no creator_display_name field in the Session model;
+            # however, this field is inserted in the Session.save() method 
+            display_name=instance.creator_display_name
+        )
 
         # Increment session attrs count of creator
         creator = instance.creator

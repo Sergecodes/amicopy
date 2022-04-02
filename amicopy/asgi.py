@@ -14,19 +14,32 @@ from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 
 import transactions.routing
+from core.middleware import JwtAuthMiddlewareStack
 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'amicopy.settings')
 
+
 application = ProtocolTypeRouter({
     'http': get_asgi_application(),
     'websocket': AllowedHostsOriginValidator(
-        AuthMiddlewareStack(
+        JwtAuthMiddlewareStack(
             URLRouter(
                 transactions.routing.websocket_urlpatterns,
-                
             )
         )
     )
 })
+
+
+# application = ProtocolTypeRouter({
+#     'http': get_asgi_application(),
+#     'websocket': AllowedHostsOriginValidator(
+#         AuthMiddlewareStack(
+#             URLRouter(
+#                 transactions.routing.websocket_urlpatterns,
+#             )
+#         )
+#     )
+# })
 

@@ -56,7 +56,10 @@ def get_session_or_error(session_uuid):
     except Session.DoesNotExist:
         # NOTE In normal circumstances, the session's existence should be confirmed 
         # before joining the socket; especially in frontend
-        raise WSClientError(WS_MESSAGE_TYPE.INVALID_SESSION.value)
+        raise WSClientError(
+            _('Invalid session'),
+            WS_MESSAGE_TYPE.INVALID_SESSION.value
+        )
 
 
 @database_sync_to_async
@@ -69,7 +72,10 @@ def get_device_or_error(device_uuid):
     try:
         return Device.objects.get(uuid=device_uuid)
     except Device.DoesNotExist:
-        raise WSClientError(WS_MESSAGE_TYPE.INVALID_DEVICE.value)
+        raise WSClientError(
+            _('Invalid session'),
+            WS_MESSAGE_TYPE.INVALID_DEVICE.value
+        )
 
 
 @database_sync_to_async
@@ -82,7 +88,10 @@ def get_transaction_or_error(transaction_uuid):
     try:
         return Transaction.objects.get(uuid=transaction_uuid)
     except Transaction.DoesNotExist:
-        raise WSClientError(WS_MESSAGE_TYPE.INVALID_TRANSACTION.value)
+        raise WSClientError(
+            _('Invalid session'),
+            WS_MESSAGE_TYPE.INVALID_TRANSACTION.value
+        )
 
 
 @database_sync_to_async
@@ -95,7 +104,7 @@ def get_or_create_device_via_browser(browser_key, **data):
     """
     Try to get a device via its `browser_key`. 
     If not found, create new device.
-    `data` should have keys: ip, display_name, user
+    `data` should have keys: ip, user
     """
     from .models.models import Device
 
@@ -104,7 +113,6 @@ def get_or_create_device_via_browser(browser_key, **data):
         browser_session_key=browser_key, 
         defaults={
             'ip_address': data['ip'],
-            'display_name': data['display_name'],
             'user': user if (user := data['user']).is_authenticated else None
         }
     )

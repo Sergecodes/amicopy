@@ -4,12 +4,12 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from transactions.constants import API_MESSAGE_TYPE
-from .models.models import Device, Session, Transaction
+from .models.models import Session, SessionDevices, Transaction
 
 
-class DeviceForm(forms.ModelForm):
+class SessionDevicesForm(forms.ModelForm):
     class Meta:
-        model = Device
+        model = SessionDevices
         fields = ['display_name']
 
     def __init__(self, user=None, *args, **kwargs):

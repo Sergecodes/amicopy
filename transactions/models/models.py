@@ -1,5 +1,6 @@
 import os
 import shortuuid
+# The uuid module is used, though the editor displays it like it isnt...
 import uuid
 from ckeditor.fields import RichTextField
 from django.conf import settings
@@ -32,11 +33,9 @@ def shared_files_upload_path(instance, filename):
 
 
 class Device(models.Model, DeviceOperations, UsesCustomSignal):
-    display_name_validator = UsernameValidator()
-
-    # Used when user issues anonymous transactions; max length is 40chars let's just leave 60 for now
+    # max length is normally 40chars let's just leave 60 for now
     # see https://docs.djangoproject.com/en/3.2/topics/http/sessions/#extending-database-backed-session-engines
-    # see also django.contrib.sessions.models.Session
+    # see also django.contrib.sessions.models.Session.
     browser_session_key = models.CharField(max_length=60, unique=True, editable=False)
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
@@ -49,25 +48,12 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
         null=True, 
         blank=True
     )
-    display_name = models.CharField(
-        _('display name'),
-        max_length=50,
-        # "Note that validators will not be run automatically when you save a model, 
-        # but if you are using a ModelForm, it will run your validators 
-        # on any fields that are included in your form."
-        # see https://docs.djangoproject.com/en/3.2/ref/validators/#how-validators-are-run
-        validators=[display_name_validator],
-        help_text=_(
-            'Name used to identify you in this session, '
-            'users in this session will be able to see this name.'
-        ),
-    )
     deleted_on = models.DateTimeField(null=True, blank=True, editable=False)
 
     objects = DeviceManager()
 
     def __str__(self):
-        return f'{self.display_name}; {self.user}'
+        return f'{self.uuid}; {self.user}'
 
     def save(self, *args, **kwargs):
         # If object is still getting created, try to save it.
@@ -135,8 +121,10 @@ class Device(models.Model, DeviceOperations, UsesCustomSignal):
         constraints = [
             # Either browser_session_key should be set(should not be empty) or
             # user id should not be empty
+            # See https://stackoverflow.com/questions/53085645/
+            # django-one-of-2-fields-must-not-be-null
             models.CheckConstraint(
-                check=~Q(browser_session_key='') & Q(user__isnull=False),
+                check=~Q(browser_session_key='') | Q(user__isnull=False),
                 name='browser_session_key_and_user_id_not_both_unset'
             )
         ]
@@ -314,6 +302,10 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
         return self.creator_device.user
 
     @cached_property
+    def creator_display_name(self):
+        return SessionDevices.objects.get(session=self, device=self.creator_device).display_name
+
+    @cached_property
     def present_devices(self):
         """
         Return devices that are presently(still) in the session. 
@@ -362,6 +354,8 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
         return reverse('transactions:session-detail', kwargs={'uuid': self.uuid})
 
     def save(self, *args, **kwargs):
+        creator_display_name = kwargs['creator_display_name']
+
         # If object is still getting created, try to save it.
         # If there's an error because the auto generated uuid value is a duplicate,
         # then regenerate till unique one is obtained.
@@ -381,6 +375,9 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
 
         self.uuid = uuid
         super().save(*args, **kwargs)
+        
+        # Do this so as to pass creator_display_name to post_save signal
+        self.creator_display_name = creator_display_name
 
     class Meta:
         db_table = 'transactions\".\"session'
@@ -399,6 +396,8 @@ class Session(models.Model, SessionOperations, UsesCustomSignal):
 
 
 class SessionDevices(models.Model):
+    display_name_validator = UsernameValidator()
+
     session = models.ForeignKey(
         Session,
         db_column='session_id',
@@ -415,6 +414,22 @@ class SessionDevices(models.Model):
     )
     # When the device joined the session
     joined_on = models.DateTimeField(auto_now_add=True)
+
+    # Device name in this session 
+    display_name = models.CharField(
+        _('display name'),
+        max_length=50,
+        # "Note that validators will not be run automatically when you save a model, 
+        # but if you are using a ModelForm, it will run your validators 
+        # on any fields that are included in your form."
+        # see https://docs.djangoproject.com/en/3.2/ref/validators/#how-validators-are-run
+        validators=[display_name_validator],
+        help_text=_(
+            'Name used to identify you in this session, '
+            'users in this session will be able to see this name.'
+        ),
+    )
+
     # Whether the device is still in the session
     is_still_present = models.BooleanField(default=True)
 
@@ -434,8 +449,9 @@ class SessionDevices(models.Model):
         # Ensure no two devices have the same name
         if not already_checked:
             can_add, name_found = can_add_device_name(
-                self.session.present_devices.values_list('display_name', flat=True),
-                self.device.display_name
+                self.present_devices.prefetch_related('session_device') \
+                .values_list('session_device__display_name', flat=True),
+                self.display_name
             )
 
             if not can_add:

@@ -122,7 +122,7 @@ class SessionOperations:
         """Verify if user partook/is partaking in the session."""
         return user in self.all_users
 
-    def add_device(self, device):
+    def add_device(self, device, display_name):
         """
         Add `device` to the session, session should allow new devices. 
         """
@@ -146,8 +146,9 @@ class SessionOperations:
 
         # Check that there's no other device in the session with the same name
         can_add, name_found = can_add_device_name(
-            self.present_devices.values_list('display_name', flat=True),
-            device.display_name
+            self.present_devices.prefetch_related('session_device') \
+            .values_list('session_device__display_name', flat=True),
+            display_name
         )
 
         if not can_add:
@@ -164,7 +165,7 @@ class SessionOperations:
 
         # Instantiate class manually instead of calling create object so as to 
         # pass the already_checked argument
-        session_device_obj = SessionDevices(session=self, device=device)
+        session_device_obj = SessionDevices(session=self, device=device, display_name=display_name)
         session_device_obj.save(already_checked=True, user_in_session=user_in_session)
 
         # Reset cached property
