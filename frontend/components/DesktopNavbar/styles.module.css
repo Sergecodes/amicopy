@@ -1,0 +1,21 @@
+
+.deskNavSection {
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.navDiv {
+    align-items: center;
+}
+
+.upgradeButton {
+    font-size: 1.2rem;
+    text-transform: capitalize;
+}
+
+.sessionMenuWrapper {
+    display: inline-block;
+}
+

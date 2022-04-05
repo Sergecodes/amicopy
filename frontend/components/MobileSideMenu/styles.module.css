@@ -1,0 +1,80 @@
+
+/* .sideNav {
+
+} */
+
+.sideNavUl a {
+    display: block;
+}
+
+.sideNavLi > a,
+.sideNavLi > label > span {
+    padding: 12px 4vw;
+    font-size: 1rem;
+    text-transform: capitalize;
+    color: rgb(105, 105, 105);
+    border-bottom: 1px solid #d4d7dc;
+}
+
+.sideNavLi > a:hover,
+.sideNavLi > label > span:hover {
+    color: black;
+    transition: color 0.2s ease;
+}
+
+
+.sideNavLi span {
+    cursor: pointer;
+    display: block;
+}
+
+.sideNavLi span::after {
+    content: "⌄";
+    float: right;
+    transform: scale(1.6);
+    padding-bottom: 3vh;
+}
+
+.sideNavInnerUl {
+    clear: both;
+    width: 100%;
+    max-height: 0px;
+    overflow: hidden;
+    text-align: center;
+    transition: max-height .4s ease;
+}
+
+.sideNavInnerUl li {
+    color: rgb(105, 105, 105);
+    font-size: .98rem;
+    padding: 12px 4vw;
+}
+
+.sideNavInnerUl li:hover {
+    color: black;
+    transition: color 0.2s ease;
+}
+
+.sessionCheckbox {
+    position: absolute; 
+    opacity: 0; 
+    height: 0px;
+}    
+
+.sessionCheckbox:checked + .sideNavInnerUl {
+    max-height: 300px;
+} 
+
+
+/* For xs and sm */
+@media (max-width: 767.99px) {
+    .sideMenu {
+        transition: max-height 0.15s ease-out;
+    }
+
+    .sideMenu.slide {
+        max-height: 500px;
+        transition: max-height 0.25s ease-in;
+    }
+}
+

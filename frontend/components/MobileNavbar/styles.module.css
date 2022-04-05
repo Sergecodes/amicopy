@@ -1,0 +1,16 @@
+
+.mobNavSection {
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.menuBarsButton {
+    cursor: pointer;
+    height: 36px;
+    width: 36px;
+}
+
+
+
