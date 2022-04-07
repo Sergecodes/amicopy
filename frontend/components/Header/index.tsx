@@ -12,7 +12,7 @@ const Header: React.FunctionComponent = () => {
   const handleNavBarClick: React.MouseEventHandler = () => setShowMenu(!showMenu);
   
   return (
-    <header className={`md:px-4 md:py-4 ${styles.header}`}>
+    <header className={`md:py-4 ${styles.header}`}>
       <MobileNavbar loggedIn={isLoggedIn} onBarClick={handleNavBarClick} />
       <MobileMenu show={showMenu} />
 

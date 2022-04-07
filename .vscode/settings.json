@@ -10,5 +10,7 @@
             "database": "amicopy_db",
             "username": "sergeman"
         }
-    ]
+    ],
+    "editor.tabSize": 3,
+    // "git.enabled": false
 }

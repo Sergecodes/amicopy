@@ -18,7 +18,7 @@
 
 .sideNavLi > a:hover,
 .sideNavLi > label > span:hover {
-    color: black;
+    color: #40a9ff;
     transition: color 0.2s ease;
 }
 
@@ -51,7 +51,7 @@
 }
 
 .sideNavInnerUl li:hover {
-    color: black;
+    color: #40a9ff;
     transition: color 0.2s ease;
 }
 

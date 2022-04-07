@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import classnames from 'classnames'
 import styles from './styles.module.css'
-import React from 'react'
+import UpgradeBtn from '../UpgradeButton'
 
 
 const MobileSideMenu: React.FunctionComponent<{ show: boolean}> = (props) => {
@@ -36,11 +36,7 @@ const MobileSideMenu: React.FunctionComponent<{ show: boolean}> = (props) => {
                     </ul>
                 </li>
                 <li className={styles.sideNavLi}>
-                    <Link href='/'>
-                    <a>
-                        <button className={styles.upgradeButton}>Upgrade</button>
-                    </a>
-                    </Link>
+                    <UpgradeBtn />
                 </li>
             </ul>
         </nav>

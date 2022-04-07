@@ -2,7 +2,8 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
-import Header from '../components/Header/Header';
+import Header from '../components/Header'
+import CoverSection from '../components/CoverSection'
 
 
 const Home: NextPage = () => {
@@ -16,7 +17,7 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         <Header />
-
+        <CoverSection />
       </main>
     </div>
   )
