@@ -1,0 +1,62 @@
+
+.container {
+   height: 550px;
+   background-image: url('/cover_FWVMhUa_wbY.jpg');
+   background-size: 100% 100%;
+   background-repeat: no-repeat;
+   background-color: #ccc;
+   margin-top: 4.5rem;
+}
+
+.sectionDiv {
+   width: 70vw;
+}
+
+.sectionDiv > h1 {
+   font-size: 3rem;
+   font-weight: bold;
+   color: white;
+   /* color: #ea4c89; */
+}
+
+.sectionDiv > h2 {
+   font-size: 1.4rem;
+   font-weight: 900;
+   /* color: rgba(0, 0, 0, 0.85); */
+   color: #ea4c89;;
+
+}
+
+button.ctaButton {
+   color: #ea4c89;
+   border-color: #ea4c89;
+}
+
+button.ctaButton:hover,
+button.ctaButton:focus {
+   background-color: white;
+}
+
+button.ctaButton:focus {
+   box-shadow: 0 0 0 3px rgba(205, 205, 205, 0.6);
+}
+
+
+@keyframes jumpInfinite {
+   0% {
+      margin-top: 0;
+   }
+
+   50% {
+      margin-top: 20px;
+   }
+
+   100% {
+      margin-top: 0;
+   }
+}
+
+.downArrow {
+   animation: jumpInfinite 1.5s infinite;
+}
+
