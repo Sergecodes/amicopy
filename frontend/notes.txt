@@ -1,3 +1,66 @@
+Home page template: https://demo.creativethemes.com/blocksy/app/
+
+
+** TODO
+- complete steps section
+- add login or profile(if user is logged in) in mobile side nav
+(see templates in mobile phone)
+- arrange background of other icons in step section
+- add list of services section like here https://demo.creativethemes.com/blocksy/app/
+- create footer
+- customize header for auth and unauthed users
+
+
+SVG VECTORS:
+(fail over bg  opacity: 0.95; background-color: #121619;)
+
+https://www.freepik.com/vectors/busy-work'>Busy work vector created by storyset - www.freepik.com
+https://www.freepik.com/vectors/project-team">Project team vector created by freepik - www.freepik.com
+https://www.freepik.com/vectors/paperwork'>Paperwork vector created by storyset - www.freepik.com
+www.freepik.com/free-vector/...
+
+1. create session
+* freelance-people-work-composition-with-character-young-girl-working-armchair-with-laptop_17545185.htm
+(<a href='https://www.freepik.com/vectors/freelancer'>Freelancer vector created by macrovector - www.freepik.com</a>)
+
+happy-freelancer-with-computer-home-young-man-sitting-armchair-using-laptop-chatting-online-smiling-vector-illustration-distance-work-online-learning-freelance_10172825.htm
+(<a href='https://www.freepik.com/vectors/freelancer'>Freelancer vector created by pch.vector - www.freepik.com</a>)
+
+top-view-workspace-with-computer-stationery-coffee-cup-plant-wooden-table_9886788.htm
+(<a href='https://www.freepik.com/vectors/phone-table'>Phone table vector created by upklyak - www.freepik.com</a>)
+
+
+2. invite other devices
+happy-people-communicating-via-social-network-mobile-screens-man-women-using-app-have-online-interview-with-employer-flat-vector-illustration-modern-technology-concept_23548061.htm
+(<a href='https://www.freepik.com/vectors/use'>Use vector created by pch.vector - www.freepik.com</a>)
+
+business-women-using-smartphone-gadget-set_20892279.htm
+(<a href='https://www.freepik.com/vectors/phone-call'>Phone call vector created by chikenbugagashenka - www.freepik.com</a>)
+
+
+3. start sharing
+top-view-designer-workspace-with-graphic-tablet-laptop-monitor-coffee-cup-plants-wooden-table-cartoon-flat-lay-creative-artist-workplace-with-mobile-phone-notebook_10308137.htm
+(<a href='https://www.freepik.com/vectors/laptop-coffee'>Laptop coffee vector created by upklyak - www.freepik.com</a>)
+
+people-work-home-office-sitting-chair-with-laptop_12620555.htm
+(<a href='https://www.freepik.com/vectors/freelancer'>Freelancer vector created by upklyak - www.freepik.com</a>)
+
+men-with-gadgets-isolated-white-background_4155569.htm
+(<a href='https://www.freepik.com/vectors/people-chatting'>People chatting vector created by teravector - www.freepik.com</a>)
+
+people-work-open-space-office-vector-flat-illustration-coworking-workpace-interior-teamwork-meeting-freelance-job-women-men-with-laptops-clipboards-presentation-office_22488921.htm
+(<a href='https://www.freepik.com/vectors/office-character'>Office character vector created by upklyak - www.freepik.com</a>)
+
+
+# two-travellers-sitting-using-mobile-phone_23722120.htm
+# characters-using-mobile-payment-system-with-scan-qr-code-online-shopping-concept_18758629.htm
+
+
+Others:
+- no usb cable: freepik.com/free-vector/usb-connection-abstract-concept-illustration_20770450.htm
+(<a href='https://www.freepik.com/vectors/usb-cable'>Usb cable vector created by vectorjuice - www.freepik.com</a>)
+- easy(can cut last frame): /businessman-moving-slider-online-order-schoolgirl_6362811.htm
+
 TODO:
 - home page
     header / nav menu (mobile first)

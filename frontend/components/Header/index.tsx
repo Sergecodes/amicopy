@@ -5,18 +5,17 @@ import MobileNavbar from '../MobileNavbar'
 import DesktopNavbar from '../DesktopNavbar'
 
 
-const Header: React.FunctionComponent = () => {
-  let isLoggedIn = false;
+const Header: React.FunctionComponent<{ loggedIn: boolean }> = (props) => {
   const [showMenu, setShowMenu] = useState(false);
 
   const handleNavBarClick: React.MouseEventHandler = () => setShowMenu(!showMenu);
   
   return (
     <header className={`${styles.header}`}>
-      <MobileNavbar loggedIn={isLoggedIn} onBarClick={handleNavBarClick} />
+      <MobileNavbar loggedIn={props.loggedIn} onBarClick={handleNavBarClick} />
       <MobileMenu show={showMenu} />
 
-      <DesktopNavbar loggedIn={isLoggedIn} />
+      <DesktopNavbar loggedIn={props.loggedIn} />
       
     </header>
   );

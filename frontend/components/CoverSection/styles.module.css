@@ -16,20 +16,20 @@
    font-size: 3rem;
    font-weight: bold;
    color: white;
-   /* color: #ea4c89; */
+   /* color: var(--pink) */
 }
 
 .sectionDiv > h2 {
    font-size: 1.4rem;
    font-weight: 900;
    /* color: rgba(0, 0, 0, 0.85); */
-   color: #ea4c89;;
+   color: var(--pink);
 
 }
 
 button.ctaButton {
-   color: #ea4c89;
-   border-color: #ea4c89;
+   color: var(--pink);
+   border-color: var(--pink);
 }
 
 button.ctaButton:hover,
@@ -57,6 +57,8 @@ button.ctaButton:focus {
 }
 
 .downArrow {
+   /* color: var(--pink); */
+   color: white;
    animation: jumpInfinite 1.5s infinite;
 }
 

@@ -4,7 +4,10 @@ import Link from 'next/link'
 import styles from './styles.module.css'
 
 
-const MobileNavbar: React.FunctionComponent<{ loggedIn: boolean, onBarClick: React.MouseEventHandler }> = (props) => {
+const MobileNavbar: React.FunctionComponent<{ 
+  loggedIn: boolean, 
+  onBarClick: React.MouseEventHandler 
+}> = (props) => {
   return (
     <section className={`flex md:hidden ${styles.mobNavSection}`}>
         <div className={styles.menuBars}>

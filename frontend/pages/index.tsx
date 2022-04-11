@@ -1,12 +1,14 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import Header from '../components/Header'
 import CoverSection from '../components/CoverSection'
-
+import HowItWorks from '../components/HowItWorks'
+import { useState } from 'react'
 
 const Home: NextPage = () => {
+  const [loggedIn, setLoggedIn] = useState(false);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -16,10 +18,16 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <Header />
-        <CoverSection />
+        <Header loggedIn={loggedIn} />
+
+        <CoverSection loggedIn={loggedIn} /> 
+        <a id="howItWorks"></a>       
+        <div style={{minHeight: '4rem'}}></div>
+
+        <HowItWorks />
+        <div style={{minHeight: '4rem'}}></div>
+        
       </main>
-      <br/>
       <br/><br/>
       <br/><br/>
       <br/><br/>
