@@ -1,0 +1,15 @@
+
+.featureWrp {
+   border-right: 1px solid #ccc;
+   padding-left: 2.8rem;
+   padding-right: 2.8rem;
+}
+
+.featureWrp:last-child {
+   border-right: none;
+}
+
+.h3 {
+   font-size: 2rem;
+}
+

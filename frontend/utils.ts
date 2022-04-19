@@ -1,11 +1,14 @@
-import { useLayoutEffect, useState } from 'react'
+import { useLayoutEffect, useEffect, useState } from 'react'
+
+
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 
 /**
  * React hook that listens to the window resize event and returns the size.
  */
 export function useWindowSize() {
-   const [size, setSize] = useState([0, 0]);
+   const [size, setSize] = useState([1000, 670]);
    // useLayoutEffect(() => {
    //    function updateSize() {
    //       setSize([window.innerWidth, window.innerHeight]);
@@ -16,12 +19,18 @@ export function useWindowSize() {
       
    //    return () => window.removeEventListener('resize', updateSize);
    // }, []);
-
-   useLayoutEffect(() => {
+   
+   useIsomorphicLayoutEffect(() => {
       let doIt: NodeJS.Timeout;
 
       function updateSize() {
-         setSize([window.innerWidth, window.innerHeight]);
+         console.log(typeof window);
+         
+         if (typeof window === "undefined") {
+            setSize([1000, 670]);
+         } else {
+            setSize([window.innerWidth, window.innerHeight]);
+         }
       }
 
       window.onresize = function() {
@@ -34,6 +43,7 @@ export function useWindowSize() {
       
       return () => window.removeEventListener('resize', updateSize);
    }, []);
+
 
    console.log("rendered use window size")
    return size;

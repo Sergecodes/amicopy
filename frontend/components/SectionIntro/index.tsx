@@ -3,7 +3,7 @@ import { CSSProperties } from "react";
 
 const SectionIntro: React.FunctionComponent<{ 
    heading: string, 
-   span1: string, 
+   span1?: string, 
    span2?: string,
    styles?: CSSProperties
 }> = (props) => {
@@ -13,17 +13,24 @@ const SectionIntro: React.FunctionComponent<{
             {props.heading}
          </h2>
          <p className="text-center text-lg">
-            <span>{props.span1}</span> 
+            {props.span1 ?
+               <span>{props.span1}</span>
+               : <></>
+            }
             {props.span2 ?
                <>
                   <br/>
                   <span>{props.span2}</span>
-               </> : 
-               <></>
+               </> : <></>
             }
          </p>
 
          <style jsx>{`
+            section {
+               padding-left: 2.8rem;
+               padding-right: 2.8rem;
+            }
+            
             .heading {
                font-size: 2.5rem;
             }

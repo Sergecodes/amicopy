@@ -2,13 +2,18 @@ Home page template: https://demo.creativethemes.com/blocksy/app/
 
 
 ** TODO
-- complete steps section
+- update cover section and steps section
 - add login or profile(if user is logged in) in mobile side nav
 (see templates in mobile phone)
 - arrange background of other icons in step section
 - add list of services section like here https://demo.creativethemes.com/blocksy/app/
-- create footer
 - customize header for auth and unauthed users
+also see www.enchant.com,
+
+- Features section
+- Reviews/Testimonials section (enchant.com; g2.com)
+- Statistics section (https://connexion-nde-uk.org/index.php/about/); use same background coloe
+- Footer
 
 
 SVG VECTORS:
