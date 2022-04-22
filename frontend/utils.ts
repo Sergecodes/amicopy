@@ -25,12 +25,12 @@ export function useWindowSize() {
 
       function updateSize() {
          console.log(typeof window);
-         
-         if (typeof window === "undefined") {
-            setSize([1000, 670]);
-         } else {
-            setSize([window.innerWidth, window.innerHeight]);
-         }
+         setSize([window.innerWidth, window.innerHeight]);
+         // if (typeof window === "undefined") {
+         //    setSize([1000, 670]);
+         // } else {
+         //    setSize([window.innerWidth, window.innerHeight]);
+         // }
       }
 
       window.onresize = function() {

@@ -1,6 +1,32 @@
 
 .container {
-   /* background-color: #fbf6ed; */
-   background-color: #f3e7d1;
+   background-color: rgb(26, 32, 44);
+   background-image: url('/stats_8jSTB6NLmVQ.jpg');
+   background-repeat: no-repeat;
+   background-attachment: fixed;
+   background-position: center;
+   background-size: cover;
+}
+
+.gridItem {
+   text-align: center;
+}
+
+.countSpan {
+   font-size: 3rem;
+   color: #40a9ff;
+   display: inline-block;
+}
+
+.titleSpan {
+   font-weight: bold;
+   color: white;
+   font-size: 1.3rem;
+}
+
+
+.plus {
+   vertical-align: super;
+
 }
 

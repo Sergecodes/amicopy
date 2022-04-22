@@ -1,6 +1,7 @@
 
 .container {
-   height: 550px;
+   /* height: 550px; */
+   height: 100vh;
    background-image: url('/cover_iABDznUDy6c.jpg');
    background-size: 100% 100%;
    background-repeat: no-repeat;
@@ -8,9 +9,9 @@
    margin-top: 4.5rem;
 }
 
-.sectionDiv {
+/* .sectionDiv {
    width: 70vw;
-}
+} */
 
 .sectionDiv > h1 {
    font-size: 3rem;

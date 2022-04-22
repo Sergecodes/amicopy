@@ -3,16 +3,16 @@ import SectionIntro from '../../components/SectionIntro'
 import { DiPhonegap } from 'react-icons/di'
 import { SiAtom } from 'react-icons/si'
 import { MdOutlineAddLink } from 'react-icons/md'
-import React, { useState } from 'react'
+import React from 'react'
 import { InView } from 'react-intersection-observer'
 
 
 type MyProps = {};
 
 type MyState = {
-   numSessions: number,
-   numTransactions: number,
-   numDevices: number
+   numSessions: number;
+   numTransactions: number;
+   numDevices: number;
 };
 
 
@@ -33,6 +33,7 @@ export default class StatisticsSection extends React.Component<MyProps, MyState>
 
    countUp = () => {
       let { numSessions, numTransactions, numDevices } = this.state;
+
       if (numSessions < this.totalSessions) {
          this.setState(prevState => ({
             numSessions: prevState.numSessions + 1
@@ -68,26 +69,36 @@ export default class StatisticsSection extends React.Component<MyProps, MyState>
       }
    }
 
-
    render() {
       return (
-         <InView as="section" onChange={this.handleViewChange} className={`py-10 ${styles.container}`}>
-            <SectionIntro heading='Stats' />
+         <InView 
+            as="section" 
+            onChange={this.handleViewChange} 
+            className={`py-10 ${styles.container}`}
+         >
+            {/* <SectionIntro heading='Stats' /> */}
             <section>
                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5">
-                  <div className="text-center">
-                     <span className="inline-block"><MdOutlineAddLink /></span>
-                     <span className={`font-bold`}>
+                  <div className={styles.gridItem}>
+                     <span className={styles.countSpan}>
                         {this.state.numDevices}
                      </span>
-                     <span className={`font-bold`}></span>
+                     <span className={styles.titleSpan}>Devices</span>
                   </div>
-                  <div className="text-center">
-                     <span className="inline-block"><MdOutlineAddLink /></span>
-                     <span className={`font-bold`}>
+
+                  <div className={styles.gridItem}>
+                     <span className={styles.countSpan}>
                         {this.state.numSessions}
                      </span>
-                     <span className={`font-bold`}></span>
+                     <span className={styles.titleSpan}>Sessions</span>
+                  </div>
+
+                  <div className={styles.gridItem}>
+                     <span className={styles.countSpan}>
+                        {this.state.numTransactions}
+                        <span className={styles.plus}>+</span>
+                     </span>
+                     <span className={styles.titleSpan}>Transactions</span>
                   </div>
                </div>
             </section>

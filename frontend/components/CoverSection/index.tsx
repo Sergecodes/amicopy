@@ -9,8 +9,8 @@ import Link from 'next/link'
 
 const CoverSection: React.FunctionComponent<{ loggedIn: boolean }> = (props) => {
    return (
-      <section className={`flex items-center ${styles.container}`}>
-         <div className={`ml-5 ${styles.sectionDiv}`}>
+      <section className={`flex items-center justify-center ${styles.container}`}>
+         <div className={`${styles.sectionDiv}`}>
             <h1 className="mb-9">
                Copy & paste between multiple devices.
             </h1>

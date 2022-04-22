@@ -1,10 +1,25 @@
-/* .footer {
-
-} */
+.main {
+   border: 1px solid rgba(0, 0, 0, 0.16);
+   border-left: 0;
+   border-right: 0;
+   margin: 0 1.5rem;
+   padding: 1.7rem 0;
+}
 
 .linksUl > li {
    text-transform: uppercase;
-   font-size: 1.1rem;
-
+   font-size: 1rem;
+   margin-left: 1.2rem;
 }
+
+.socialsUl > li {
+   font-size: 1.2rem;
+   margin-left: 1.2rem;
+}
+
+.linksUl > li:first-child,
+.socialsUl > li:first-child {
+   margin-left: 0;
+}
+
 
