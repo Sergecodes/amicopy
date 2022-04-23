@@ -10,7 +10,7 @@ import Link from 'next/link'
 const CoverSection: React.FunctionComponent<{ loggedIn: boolean }> = (props) => {
    return (
       <section className={`flex items-center justify-center ${styles.container}`}>
-         <div className={`${styles.sectionDiv}`}>
+         <div className={`text-center px-4 ${styles.sectionDiv}`}>
             <h1 className="mb-9">
                Copy & paste between multiple devices.
             </h1>
@@ -83,7 +83,6 @@ const CoverSection: React.FunctionComponent<{ loggedIn: boolean }> = (props) => 
                   </Button>
                </Link>
             }
-            
          </div>
       </section>
    );

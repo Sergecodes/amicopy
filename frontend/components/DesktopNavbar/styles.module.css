@@ -22,9 +22,17 @@
     transition: color 5ms ease;
 }
 
-.sessionMenuWrapper {
+.sessionMenuWrp {
     margin-left: 1.3rem;
 }
+
+.sessionMenuWrp a:not(:last-child) {
+    color: var(--pink);
+}
+
+/* .sessionMenuWrp a:not(:last-child):hover {
+    font-weight: bold;
+} */
 
 .sessionBtn {
     color: #444;

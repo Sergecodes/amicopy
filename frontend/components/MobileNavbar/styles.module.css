@@ -8,9 +8,23 @@
 
 .menuBarsButton {
     cursor: pointer;
-    height: 36px;
-    width: 36px;
+    text-align: center;
+    vertical-align: text-top;
+    /* height: 36px; */
+    width: 40px;
 }
 
+.menuBarsButton > span {
+    font-size: 1.3rem;
+    display: inline-block;
+}
 
+.loginLink {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.loginLink:hover {
+    opacity: 1;
+}
 

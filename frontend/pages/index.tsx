@@ -14,7 +14,7 @@ import { useState } from 'react'
 const Home: NextPage = () => {
   const [loggedIn, setLoggedIn] = useState(false);
 
-  const Space = <div style={{ minHeight: '6rem' }}></div>;
+  const Space = <div style={{ minHeight: '5rem' }}></div>;
 
   return (
     <section className={styles.container}>
@@ -37,10 +37,10 @@ const Home: NextPage = () => {
         <FeaturesSection />
         {Space}
 
-        <Testimonials />
+        <StatisticsSection />
         {Space}
 
-        <StatisticsSection />
+        <Testimonials />
         {Space}
 
         <Footer />

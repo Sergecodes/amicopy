@@ -1,10 +1,12 @@
 
-/* .sideNav {
-
-} */
-
 .sideNavUl a {
     display: block;
+}
+
+.sideNavUl a > svg {
+    display: inline;
+    margin-right: 5px;
+    vertical-align: text-top;
 }
 
 .sideNavLi > a,
@@ -18,7 +20,7 @@
 
 .sideNavLi > a:hover,
 .sideNavLi > label > span:hover {
-    color: #40a9ff;
+    color: var(--blue);
     transition: color 0.2s ease;
 }
 
@@ -44,15 +46,25 @@
     transition: max-height .4s ease;
 }
 
-.sideNavInnerUl li {
-    color: rgb(105, 105, 105);
+.sideNavInnerUl a {
+    color: var(--pink);
     font-size: .98rem;
     padding: 12px 4vw;
 }
 
-.sideNavInnerUl li:hover {
-    color: #40a9ff;
-    transition: color 0.2s ease;
+.sideNavInnerUl > li:last-child a {
+    color: rgb(105, 105, 105);
+}
+
+.sideNavInnerUl a:hover {
+    font-weight: bold;
+    color: var(--pink);
+    /* transition: color 0.2s ease; */
+    /* transition: font-weight 0.2s ease; */
+}
+
+.sideNavInnerUl > li:last-child a:hover {
+    color: var(--blue);
 }
 
 .sessionCheckbox {

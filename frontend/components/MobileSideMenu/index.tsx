@@ -2,6 +2,9 @@ import Link from 'next/link'
 import classnames from 'classnames'
 import styles from './styles.module.css'
 import UpgradeBtn from '../UpgradeButton'
+import { AiOutlinePlus } from 'react-icons/ai'
+import { BiGitMerge } from 'react-icons/bi'
+import { BsViewList } from 'react-icons/bs'
 
 
 const MobileSideMenu: React.FunctionComponent<{ show: boolean}> = (props) => {
@@ -25,13 +28,13 @@ const MobileSideMenu: React.FunctionComponent<{ show: boolean}> = (props) => {
 
                     <ul className={styles.sideNavInnerUl}>
                         <li>
-                            <Link href='/'><a>New session</a></Link>
+                            <Link href='/'><a><AiOutlinePlus /> New session</a></Link>
                         </li>
                         <li>
-                            <Link href='/'><a>Join a session</a></Link>
+                            <Link href='/'><a><BiGitMerge /> Join a session</a></Link>
                         </li>
                         <li>
-                            <Link href='/'><a>View sessions</a></Link>
+                            <Link href='/'><a><BsViewList /> View sessions</a></Link>
                         </li>
                     </ul>
                 </li>

@@ -74,7 +74,7 @@ export default class StatisticsSection extends React.Component<MyProps, MyState>
          <InView 
             as="section" 
             onChange={this.handleViewChange} 
-            className={`py-10 ${styles.container}`}
+            className={`py-40 ${styles.container}`}
          >
             {/* <SectionIntro heading='Stats' /> */}
             <section>

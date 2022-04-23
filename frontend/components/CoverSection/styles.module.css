@@ -1,6 +1,5 @@
 
 .container {
-   /* height: 550px; */
    height: 100vh;
    background-image: url('/cover_iABDznUDy6c.jpg');
    background-size: 100% 100%;
@@ -8,10 +7,6 @@
    background-color: #ccc;
    margin-top: 4.5rem;
 }
-
-/* .sectionDiv {
-   width: 70vw;
-} */
 
 .sectionDiv > h1 {
    font-size: 3rem;
@@ -61,5 +56,13 @@ button.ctaButton:focus {
    /* color: var(--pink); */
    color: white;
    animation: jumpInfinite 1.5s infinite;
+}
+
+
+/* For xs and sm */
+@media (max-width: 767.99px) {
+   .container {
+      margin-top: 4.1rem;
+   }
 }
 

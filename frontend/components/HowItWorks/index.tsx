@@ -17,7 +17,7 @@ const HowItWorks: React.FunctionComponent = () => {
       <section className={``}>
          <SectionIntro 
             heading='How it works' 
-            span1='Create a session; which is a space where devices can communicate with each other,'
+            span1='Create a session; a space where devices can communicate with each other,'
             span2='add devices to the session, et voilà! 👌'
          />
          
@@ -25,13 +25,7 @@ const HowItWorks: React.FunctionComponent = () => {
             <Step 
                title={<h3 className={styles.stepTitle}>Create a session</h3>}
                subTitle={
-                  <div className="inline-block">
-                     <Image 
-                        src='/8401.png' 
-                        alt="computer desk"
-                        width={150}
-                        height={150}
-                     />
+                  <div className="mb-3 inline-block">
                      <Image 
                         src='/2008.i605.015_freelance_people_work_set-12.png' 
                         alt="woman on computer"
@@ -50,10 +44,10 @@ const HowItWorks: React.FunctionComponent = () => {
             <Step 
                title={<h3 className={styles.stepTitle}>Invite and add other devices</h3>}
                subTitle={
-                  <div className="inline-block">
+                  <div className="mb-3 inline-block">
                      <Image 
-                        src='/18303703.png' 
-                        alt="many computers on desk"
+                        src='/8401.png' 
+                        alt="computer desk"
                         width={150}
                         height={150}
                      />
@@ -79,19 +73,19 @@ const HowItWorks: React.FunctionComponent = () => {
                className='third-step'
                title={<h3 className={styles.stepTitle}>Start sharing, copying and pasting</h3>}
                subTitle={
-                  <div className="inline-block">
+                  <div className="mb-3 inline-block">
                      <Image 
                         src='/Happy_people_communicating_via_social_network_on_mobile_screens.png' 
                         alt="people communicating via mobile phone"
                         width={150}
                         height={150}
                      />
-                     <Image 
+                     {/* <Image 
                         src='/4884548.png' 
                         alt="people holding devices"
                         width={150}
                         height={150}
-                     />
+                     /> */}
                   </div>
                }
                description={
@@ -107,6 +101,16 @@ const HowItWorks: React.FunctionComponent = () => {
          <style jsx global>{`
             .ant-steps-item-description {
                max-width: 300px !important;
+            }
+
+            /* Add margin after bottom arrow */
+            .ant-steps-navigation.ant-steps-vertical > .ant-steps-item {
+               margin-bottom: 1rem;
+            }
+            
+            .ant-steps-item-container {
+               text-align: center !important;
+               margin-bottom: 1rem;  /* add margin before bottom arrow */
             }
                
             /* Remove horizontal tracker bar */

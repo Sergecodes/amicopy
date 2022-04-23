@@ -1,4 +1,4 @@
-import { FaRegWindowMinimize } from 'react-icons/fa'
+import { RiMenu5Fill } from 'react-icons/ri'
 import Image from 'next/image'
 import Link from 'next/link'
 import styles from './styles.module.css'
@@ -12,10 +12,11 @@ const MobileNavbar: React.FunctionComponent<{
     <section className={`flex md:hidden ${styles.mobNavSection}`}>
         <div className={styles.menuBars}>
           <button onClick={props.onBarClick} className={styles.menuBarsButton}>
-            <span>
+            {/* <span>
               <FaRegWindowMinimize style={{marginBottom: '-5px'}} />
               <FaRegWindowMinimize />
-            </span>
+            </span> */}
+            <span><RiMenu5Fill /></span>
           </button>
         </div>
         <div>
@@ -26,7 +27,7 @@ const MobileNavbar: React.FunctionComponent<{
           null
           : 
           <Link href="/">
-            <a>Log in</a>
+            <a className={styles.loginLink}>Sign in</a>
           </Link>
           }
         </div>

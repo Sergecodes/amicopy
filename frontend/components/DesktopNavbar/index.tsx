@@ -49,7 +49,7 @@ const DesktopNavbar: React.FunctionComponent<{ loggedIn: boolean }> = (props) =>
                   </>
                }     
             </div>
-            <div className={styles.sessionMenuWrapper}>
+            <div className={styles.sessionMenuWrp}>
                <Menu>
                   <MenuButton className={styles.sessionBtn}>Sessions</MenuButton>
                   <MenuList>
