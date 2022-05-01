@@ -1,13 +1,15 @@
 
 .cardWrp {
-   min-height: 300px;
+   min-height: 380px;
    display: flex !important;
    justify-content: center;
-   background-color: red;
+   background-color: #3182ce;
+   padding: 2.5rem 0;
 }
 
 .cardStyle {
-   width: 45vw;
+   /* width: 45vw; */
+   width: 50vw;
    text-align: center;
 }
 

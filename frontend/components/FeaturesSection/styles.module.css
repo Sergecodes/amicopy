@@ -1,15 +1,23 @@
 
-.featureWrp {
-   /* border-right: 1px solid #ccc; */
-   /* padding-left: 2.8rem;
-   padding-right: 2.8rem; */
+.featuresParent {
+   padding: 5px 10px;
+   /* color: #6c737d; */
+   color: #535c68;
 }
 
 .featureWrp:last-child {
    border-right: none;
 }
 
-.h3 {
-   font-size: 2rem;
+.iconWrp {
+   color: var(--blue);
 }
 
+.title {
+   color: var(--text);
+}
+
+.description {
+   font-size: 0.95rem;
+   padding: 0 4px;
+}

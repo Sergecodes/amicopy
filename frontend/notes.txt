@@ -2,13 +2,11 @@ Home page template: https://demo.creativethemes.com/blocksy/app/
 
 
 ** TODO
-- update cover section and steps section
-- add login or profile(if user is logged in) in mobile side nav
-(see templates in mobile phone)
-- arrange background of other icons in step section
-- add list of services section like here https://demo.creativethemes.com/blocksy/app/
-- customize header for auth and unauthed users
-also see www.enchant.com,
+- update desktop header(size of links, etc..)
+- update mobile side nav (add profile & logout links; see phone;)
+- add Feedback button to footer
+- update logo and favicon
+
 
 
 SVG VECTORS:

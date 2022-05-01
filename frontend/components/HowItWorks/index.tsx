@@ -101,6 +101,8 @@ const HowItWorks: React.FunctionComponent = () => {
          <style jsx global>{`
             .ant-steps-item-description {
                max-width: 300px !important;
+               color: var(--text) !important;
+               font-size: .97rem;
             }
 
             /* Add margin after bottom arrow */

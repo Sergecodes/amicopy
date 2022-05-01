@@ -78,22 +78,24 @@ export default class StatisticsSection extends React.Component<MyProps, MyState>
          >
             {/* <SectionIntro heading='Stats' /> */}
             <section>
-               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5">
+               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-20">
                   <div className={styles.gridItem}>
                      <span className={styles.countSpan}>
                         {this.state.numDevices}
+                        <span className={styles.plus}>+</span>
                      </span>
                      <span className={styles.titleSpan}>Devices</span>
                   </div>
 
-                  <div className={styles.gridItem}>
+                  <div className={`md:-m-6 ${styles.gridItem}`}>
                      <span className={styles.countSpan}>
                         {this.state.numSessions}
+                        <span className={styles.plus}>+</span>
                      </span>
                      <span className={styles.titleSpan}>Sessions</span>
                   </div>
 
-                  <div className={styles.gridItem}>
+                  <div className={`sm:col-span-2 ${styles.gridItem}`}>
                      <span className={styles.countSpan}>
                         {this.state.numTransactions}
                         <span className={styles.plus}>+</span>

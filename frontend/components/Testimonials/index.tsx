@@ -9,7 +9,7 @@ const Testimonials: React.FunctionComponent = () => {
 
    return (
       <section className={``}>
-         <SectionIntro heading='What our users say' />
+         <SectionIntro heading='From our users' />
 
          <section>
             <Carousel autoplay dotPosition="left" >

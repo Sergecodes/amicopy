@@ -6,12 +6,14 @@
   --pink: #ea4c89;
   --blue: #40a9ff;
   --black: rgb(26, 32, 44);
+  --text: #535c68;
 }
 
 html,
 body {
   padding: 0;
   margin: 0;
+  color: var(--text);
   font-family: 'Inter', sans-serif;
   scroll-behavior: smooth;
   /* font-family: 'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", 

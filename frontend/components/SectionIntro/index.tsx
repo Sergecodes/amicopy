@@ -12,10 +12,9 @@ const SectionIntro: React.FunctionComponent<{
          <h2 className={`font-bold capitalize mb-3 heading`}>
             {props.heading}
          </h2>
-         <p className="text-center text-lg">
+         <p className="text-center text-lg subHeading">
             {props.span1 ?
-               <span>{props.span1}</span>
-               : <></>
+               <span>{props.span1}</span> : <></>
             }
             {props.span2 ?
                <>
@@ -33,6 +32,11 @@ const SectionIntro: React.FunctionComponent<{
             
             .heading {
                font-size: 2.5rem;
+               color: var(--text);
+            }
+
+            .subHeading {
+               color: var(--text);
             }
          `}</style>
       </section>

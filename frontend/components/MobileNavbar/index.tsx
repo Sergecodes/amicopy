@@ -20,7 +20,7 @@ const MobileNavbar: React.FunctionComponent<{
           </button>
         </div>
         <div>
-          <Image alt="amicopy logo" src="/merakist-l5if0iQfV4c-unsplash.jpg" width={80} height={30} />
+          <Image alt="amicopy logo" src="/logo.png" width={80} height={30} />
         </div>
         <div>
           {props.loggedIn ? 

@@ -17,7 +17,7 @@ const DesktopNavbar: React.FunctionComponent<{ loggedIn: boolean }> = (props) =>
    return (
       <section className={`hidden md:flex px-5 ${styles.deskNavSection}`}>
          <div className={`w-1/4`}>
-            <Image alt="amicopy logo" src="/merakist-l5if0iQfV4c-unsplash.jpg" width={80} height={30} />
+            <Image alt="amicopy logo" src="/logo.png" width={80} height={30} />
          </div>
          <div className={`w-3/4 flex ${styles.navDiv}`}>
             <UpgradeBtn />

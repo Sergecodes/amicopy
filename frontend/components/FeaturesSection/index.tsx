@@ -17,13 +17,13 @@ const Feature: React.FunctionComponent<{
 
    return (
       <div className={`${props.className || ''} ${styles.featureWrp}`}>
-         <div className={`text-center mb-2`}>
-            <span className={`inline-block`}>{props.icon}</span>
+         <div className={`text-center mb-2 text-3xl`}>
+            <span className={`inline-block ${styles.iconWrp}`}>{props.icon}</span>
          </div>
-         <h3 className={`font-bold text-center capitalize mb-3 h3`}>
+         <h3 className={`font-bold text-center capitalize mb-3 text-lg ${styles.title}`}>
             {props.title}
          </h3>
-         <p className={`text-center`}>
+         <p className={`text-center ${styles.description}`}>
             {props.description}
          </p>
       </div>
@@ -34,10 +34,10 @@ const Feature: React.FunctionComponent<{
 const FeaturesSection: React.FunctionComponent = () => {
 
    return (
-      <section className={``}>
+      <section>
          <SectionIntro heading='Distinct features' />
 
-         <section className="grid grid-cols-12 md:grid-cols-12 gap-y-10">
+         <section className={`grid grid-cols-12 md:grid-cols-12 gap-y-10 ${styles.featuresParent}`}>
             <Feature 
                className="px-4 col-span-12 sm:col-span-6 md:col-span-4"
                title="Multiple devices & users" 

@@ -14,13 +14,13 @@
 .countSpan {
    font-size: 3rem;
    color: #40a9ff;
-   display: inline-block;
+   display: block;
 }
 
 .titleSpan {
    font-weight: bold;
    color: white;
-   font-size: 1.3rem;
+   font-size: 1.6rem;
 }
 
 
