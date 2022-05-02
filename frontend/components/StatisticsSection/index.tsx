@@ -95,7 +95,7 @@ export default class StatisticsSection extends React.Component<MyProps, MyState>
                      <span className={styles.titleSpan}>Sessions</span>
                   </div>
 
-                  <div className={`sm:col-span-2 ${styles.gridItem}`}>
+                  <div className={`sm:col-span-2 md:col-span-1 ${styles.gridItem}`}>
                      <span className={styles.countSpan}>
                         {this.state.numTransactions}
                         <span className={styles.plus}>+</span>

@@ -1,38 +1,30 @@
 
 .deskNavSection {
-    /* justify-content: space-around; */
     align-items: center;
-    padding-bottom: 1rem;
+    padding: 0 11vw 0.4rem;
     border-bottom: 1px solid #eaeaea;
-    padding-left: 6rem;
-    padding-right: 5rem;
 }
 
 .navDiv {
     align-items: center;
     justify-content: end;
     color: rgb(110, 109, 122);
-    font-weight: 500;
-    /* padding-right: 10vw; */
+    font-size: 1.1rem;
+    color: var(--text);
 }
 
 .navDiv button:hover,
 .navDiv a:hover {
-    /* color: #0d0c22; */
     transition: color 5ms ease;
 }
 
 .sessionMenuWrp {
-    margin-left: 1.3rem;
+    margin-right: 1rem;
 }
 
 .sessionMenuWrp a:not(:last-child) {
     color: var(--pink);
 }
-
-/* .sessionMenuWrp a:not(:last-child):hover {
-    font-weight: bold;
-} */
 
 .sessionBtn {
     color: #444;
@@ -42,13 +34,15 @@
     background-image: linear-gradient(45deg, #ea4c89, #ff874f);
 }
 
-/* .sessionBtn:hover {
-    color: #40a9ff;
-} */
-
-
 .modeDividerWrp {
     height: 42px;
     margin: auto 10px;
 
 }
+
+@media (min-width: 970px) {
+    .deskNavSection {
+        display: flex;
+    }
+}
+

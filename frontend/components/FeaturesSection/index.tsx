@@ -1,7 +1,7 @@
 import styles from './styles.module.css'
 import SectionIntro from '../SectionIntro'
 import { ReactNode } from 'react';
-import { FaReact, FaUsers } from 'react-icons/fa'
+import { FaReact, FaHistory } from 'react-icons/fa'
 import { RiChatPrivateLine } from 'react-icons/ri'
 import { SiSpringsecurity, SiAuthy } from 'react-icons/si'
 import { MdOutlinePhonelink, MdOutlinePhonelinkLock, MdPhonelink } from 'react-icons/md'
@@ -59,6 +59,45 @@ const FeaturesSection: React.FunctionComponent = () => {
                "
             />
             <Feature 
+               className="px-4 col-span-12 sm:col-span-6 md:col-span-4"
+               title="No boundaries" 
+               icon={<FaReact />}
+               description="
+                  There's no physical boundary as to where devices can be; devices can 
+                  be in any location. Also, it's blazing fast!
+               "
+            />
+            <Feature 
+               className="px-4 col-span-12 sm:col-span-6 md:col-span-4"
+               title="Consistent history" 
+               icon={<SiSpringsecurity />}
+               description="
+                  You can view all previous sessions and transactions in a single click.
+                  Because we are there, you do not need to remember data. Information 
+                  is what's useful and we help you keep in touch with it!
+               "
+            />
+            <Feature 
+               className="px-4 col-span-12 sm:col-span-6 md:col-span-4"
+               title="Guaranteed security" 
+               icon={<FaHistory />}
+               description="
+                  In addition to the default security, you can add a custom code that 
+                  will be required for new users. Users without this code won't be granted 
+                  access.
+               "
+            />
+            <Feature 
+               className="px-4 col-span-12 sm:col-span-6 md:col-span-4"
+               title="2FA" 
+               icon={<MdOutlinePhonelinkLock />}
+               description="
+                  Because we understand how important your data is, we also provide 
+                  Two Factor Authentication. This is an extra mile of security which 
+                  prevents others from impersonating you without your permission.
+               "
+            />
+            {/* <Feature 
                className="px-4 sm:px-36 md:px-4 col-span-12 md:col-span-4"
                title="No boundaries" 
                icon={<FaReact />}
@@ -86,7 +125,7 @@ const FeaturesSection: React.FunctionComponent = () => {
                   Two Factor Authentication. This is an extra mile of security which 
                   prevents others from impersonating you without your permission.
                "
-            />
+            /> */}
          </section>
       </section>
    );

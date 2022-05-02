@@ -3,12 +3,15 @@
    min-height: 380px;
    display: flex !important;
    justify-content: center;
-   background-color: #3182ce;
+   /* background-color: #3182ce; */
+   background-image: url('/test_w-AP7tG4LTeXA.jpg');
+   background-size: 100% 100%;
+   background-repeat: no-repeat;
+   background-color: rgba(0, 0, 0, 0.48);
    padding: 2.5rem 0;
 }
 
-.cardStyle {
-   /* width: 45vw; */
+.cardStyle {   
    width: 50vw;
    text-align: center;
 }
@@ -17,11 +20,4 @@
    color: var(--blue);
 }
 
-/* .contentStyle {
-   height: 160px;
-   color: #fff;
-   line-height: 160px;
-   text-align: center;
-   background: #364d79;
-} */
 

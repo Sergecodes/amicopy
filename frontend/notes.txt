@@ -2,13 +2,73 @@ Home page template: https://demo.creativethemes.com/blocksy/app/
 
 
 ** TODO
-- update desktop header(size of links, etc..)
-- update mobile side nav (add profile & logout links; see phone;)
 - add Feedback button to footer
-- update logo and favicon
+
+TODO:
+- home page
+    header / nav menu (mobile first)
+    footer
+    setup redux store ... (will contain common state such as authed user info, )
+    (use the nice animated wow emoji on this page https://www.sliderrevolution.com/resources/css-dropdown-menu/)
+
+    middle section content 
+- 
+- implement light/dark mode
+- implement authentication
+- signup page 
+- login page
+- post email confirmation: welcome user to the site, their email has been confirmed
+- session creation form page
+    - session form (enter session title / optional creator code)
 
 
+Note: for each page, search online for similar pages.
+PAGES: total - 20
+- home page: display what site is about, how to use, steps .. (ALSO USE SVG IMAGE VECTORS)
+- pricing page: display monthly and yearly pricing, with differences between each plan
 
+- session creation page (form)
+- session detail page: (usage of websockets here with transactions displayed). 
+implement bottom right action floating button (Copy last text and view other sessions dropdown) floating button))
+see https://wordpress.ehr-crm.com/frontend-manager/dashboard responsivity;
+see facebook and whatsapp ...
+user should also see sessions that he's in, clicking on one should probably lead to a new page...
+- User pages :
+(login to hubs.docker.com and visit profile if possible use same structure of pages and even dropdown used)
+(see https://id.atlassian.com/manage-profile/ too)
+    - clipboard(display past sessions and corresponding transactions) 
+    - profile
+    - settings
+    - billing
+- Payment pages: see hubs.docker.com 
+    - check out
+    - payment confirmed
+    - payment failed
+- signup page
+- login page 
+- post email confirmation: welcome user to the site, their email has been confirmed
+- change password 
+- reset / forgot password 
+- faq
+- feature request(just use modal)
+- privacy policy 
+- terms of service
+
+INSPIRATION...:
+    - https://send-anywhere.com/#transfer
+    
+    HEADER: (see hubs.docker.com for more inspiration)
+        Home; Create/join session dropdown(can call the dropdown New session); Upgrade (leads to pricing page); 
+        Log in - Sign up; hubs.docker.com Profile dropdown; 
+        light-dark mode switch(material ui or docs.docker.com)
+
+    FOOTER: 
+        ** oscend template in themeforest (https://themeforest.net/item/oscend-creative-agency-wordpress-theme/15583465)
+        About, Social media(twitter, facebook), Newsletter, faq, 
+        terms of service | privacy policy, feature request, 
+
+
+----------------------------------------------------------------------------------------
 SVG VECTORS:
 (fail over bg  opacity: 0.95; background-color: #121619;)
 
@@ -59,64 +119,3 @@ Others:
 (<a href='https://www.freepik.com/vectors/usb-cable'>Usb cable vector created by vectorjuice - www.freepik.com</a>)
 - easy(can cut last frame): /businessman-moving-slider-online-order-schoolgirl_6362811.htm
 
-TODO:
-- home page
-    header / nav menu (mobile first)
-    footer
-    setup redux store ... (will contain common state such as authed user info, )
-    (use the nice animated wow emoji on this page https://www.sliderrevolution.com/resources/css-dropdown-menu/)
-
-    middle section content 
-- implement bottom right action floating button (Copy last text and view other sessions dropdown) floating button))
-- implement light/dark mode
-- implement authentication
-- signup page 
-- login page
-- post email confirmation: welcome user to the site, their email has been confirmed
-- session creation form page
-    - session form (enter session title / optional creator code)
-
-
-
-Note: for each page, search online for similar pages.
-PAGES: total - 20
-- home page: display what site is about, how to use, steps .. (ALSO USE SVG IMAGE VECTORS)
-- pricing page: display monthly and yearly pricing, with differences between each plan
-- session creation page (form)
-- session detail page: (usage of websockets here with transactions displayed). see 
-https://wordpress.ehr-crm.com/frontend-manager/dashboard responsivity;
-see facebook and whatsapp ...
-user should also see sessions that he's in, clicking on one should probably lead to a new page...
-- User pages :
-(login to hubs.docker.com and visit profile if possible use same structure of pages and even dropdown used)
-(see https://id.atlassian.com/manage-profile/ too)
-    - clipboard(display past sessions and corresponding transactions) 
-    - profile
-    - settings
-    - billing
-- Payment pages: see hubs.docker.com 
-    - check out
-    - payment confirmed
-    - payment failed
-- signup page
-- login page 
-- post email confirmation: welcome user to the site, their email has been confirmed
-- change password 
-- reset / forgot password 
-- faq
-- feature request(just use modal)
-- privacy policy 
-- terms of service
-
-INSPIRATION...:
-    - https://send-anywhere.com/#transfer
-    
-    HEADER: (see hubs.docker.com for more inspiration)
-        Home; Create/join session dropdown(can call the dropdown New session); Upgrade (leads to pricing page); 
-        Log in - Sign up; hubs.docker.com Profile dropdown; 
-        light-dark mode switch(material ui or docs.docker.com)
-
-    FOOTER: 
-        ** oscend template in themeforest (https://themeforest.net/item/oscend-creative-agency-wordpress-theme/15583465)
-        About, Social media(twitter, facebook), Newsletter, faq, 
-        terms of service | privacy policy, feature request, 

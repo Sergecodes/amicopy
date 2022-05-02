@@ -1,10 +1,10 @@
 import Link from 'next/link'
 
 
-const UpgradeBtn: React.FunctionComponent = () => {
+const UpgradeBtn: React.FunctionComponent<{ style?: React.CSSProperties }> = (props) => {
   return (
     <Link href="/">
-      <a>
+      <a style={props.style || {}}>
         <button>Upgrade</button>
       </a>
     </Link>

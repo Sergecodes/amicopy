@@ -15,13 +15,17 @@ import UpgradeBtn from '../UpgradeButton'
 
 const DesktopNavbar: React.FunctionComponent<{ loggedIn: boolean }> = (props) => {
    return (
-      <section className={`hidden md:flex px-5 ${styles.deskNavSection}`}>
+      <section className={`hidden ${styles.deskNavSection}`}>
          <div className={`w-1/4`}>
-            <Image alt="amicopy logo" src="/logo.png" width={80} height={30} />
+            <Link href='/'>
+               <a>
+                  <Image alt="amicopy logo" src="/logo.png" width={135} height={60} />
+               </a>
+            </Link>
          </div>
          <div className={`w-3/4 flex ${styles.navDiv}`}>
             <UpgradeBtn />
-            <div>
+            <div className={props.loggedIn ? `` : `mx-12 ${styles.authLinksWrp}`}>
                {props.loggedIn ?
                   <Menu>
                      <MenuButton as={Button} colorScheme='pink'>
@@ -41,9 +45,9 @@ const DesktopNavbar: React.FunctionComponent<{ loggedIn: boolean }> = (props) =>
                   </Menu>
                   :
                   <>
-                     <Link href='/'><a className="ml-3">Login</a></Link>
-                     <span className="mx-2 inline-block" style={{transform: 'scale(1.4)'}}>
-                        /
+                     <Link href='/'><a>Login</a></Link>
+                     <span className="mx-2 inline-block" style={{ transform: 'scale(1.4)' }}>
+                        ~
                      </span>
                      <Link href='/'><a>Sign up</a></Link>
                   </>
@@ -66,13 +70,13 @@ const DesktopNavbar: React.FunctionComponent<{ loggedIn: boolean }> = (props) =>
                </Menu>
             </div>
             <span className={styles.modeDividerWrp}>
-               <Divider orientation='vertical' style={{borderColor: '#bbb'}} />
+               <Divider orientation='vertical' style={{ borderColor: '#bbb' }} />
             </span>
-            <div>
+            <div className='ml-4'>
                <Switch
                   checkedChildren={<BsSun />}
                   unCheckedChildren={<FaCloudSun />}
-                  style={{height: '25px', minWidth: '48px'}}
+                  style={{ height: '25px', minWidth: '48px' }}
                   defaultChecked
                />
             </div>

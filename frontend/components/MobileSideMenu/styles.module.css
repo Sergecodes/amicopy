@@ -10,27 +10,26 @@
 }
 
 .sideNavLi > a,
-.sideNavLi > label > span {
+.sessionsSpan {
     padding: 12px 4vw;
     font-size: 1rem;
     text-transform: capitalize;
-    color: rgb(105, 105, 105);
+    color: var(--text);
     border-bottom: 1px solid #d4d7dc;
 }
 
 .sideNavLi > a:hover,
-.sideNavLi > label > span:hover {
+.sessionsSpan:hover {
     color: var(--blue);
     transition: color 0.2s ease;
 }
 
-
-.sideNavLi span {
+.sessionsSpan {
     cursor: pointer;
     display: block;
 }
 
-.sideNavLi span::after {
+.sessionsSpan::after {
     content: "⌄";
     float: right;
     transform: scale(1.6);
@@ -53,7 +52,7 @@
 }
 
 .sideNavInnerUl > li:last-child a {
-    color: rgb(105, 105, 105);
+    color: var(--text);
 }
 
 .sideNavInnerUl a:hover {
@@ -77,9 +76,22 @@
     max-height: 300px;
 } 
 
+.sideNavLi:last-child {
+    padding: 1.7rem 4vw;
+    font-size: 1rem;
+    color: var(--text);
+}
 
-/* For xs and sm */
-@media (max-width: 767.99px) {
+.accountDiv {
+    display: flex;
+}
+
+.accountDiv a {
+    display: inline-block;
+}
+
+
+@media (max-width: 970px) {
     .sideMenu {
         transition: max-height 0.15s ease-out;
     }

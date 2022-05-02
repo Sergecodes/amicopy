@@ -2,7 +2,8 @@ import styles from './styles.module.css'
 import Link from 'next/link'
 import { Center } from '@chakra-ui/react'
 import { FiMail, FiTwitter, FiFacebook } from 'react-icons/fi'
-import { FaFacebook, FaTwitter } from 'react-icons/fa'
+// import { FaFacebook, FaTwitter } from 'react-icons/fa'
+import FeedbackForm from '../FeedbackForm'
 
 
 const Footer: React.FunctionComponent = () => {
@@ -31,6 +32,7 @@ const Footer: React.FunctionComponent = () => {
                      <a>Terms &amp; conditions</a>
                   </Link>
                </li>
+               <li><FeedbackForm /></li>
             </ul>
                
             <ul className={`col-span-12 md:col-span-2 flex justify-center md:justify-start items-center ${styles.socialsUl}`}>

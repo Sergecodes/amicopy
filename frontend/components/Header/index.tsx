@@ -13,7 +13,7 @@ const Header: React.FunctionComponent<{ loggedIn: boolean }> = (props) => {
   return (
     <header className={`${styles.header}`}>
       <MobileNavbar loggedIn={props.loggedIn} onBarClick={handleNavBarClick} />
-      <MobileMenu show={showMenu} />
+      <MobileMenu show={showMenu} loggedIn={props.loggedIn} />
 
       <DesktopNavbar loggedIn={props.loggedIn} />
       
