@@ -1,18 +1,11 @@
-Home page template: https://demo.creativethemes.com/blocksy/app/
+
+NEXT UP:
+- pricing page (display monthly and yearly pricing, with differences between each plan)
+(https://www.iloveimg.com/pricing)
 
 
-** TODO
-- add Feedback button to footer
 
 TODO:
-- home page
-    header / nav menu (mobile first)
-    footer
-    setup redux store ... (will contain common state such as authed user info, )
-    (use the nice animated wow emoji on this page https://www.sliderrevolution.com/resources/css-dropdown-menu/)
-
-    middle section content 
-- 
 - implement light/dark mode
 - implement authentication
 - signup page 
@@ -25,8 +18,6 @@ TODO:
 Note: for each page, search online for similar pages.
 PAGES: total - 20
 - home page: display what site is about, how to use, steps .. (ALSO USE SVG IMAGE VECTORS)
-- pricing page: display monthly and yearly pricing, with differences between each plan
-
 - session creation page (form)
 - session detail page: (usage of websockets here with transactions displayed). 
 implement bottom right action floating button (Copy last text and view other sessions dropdown) floating button))
@@ -55,6 +46,7 @@ user should also see sessions that he's in, clicking on one should probably lead
 - terms of service
 
 INSPIRATION...:
+(use the nice animated wow emoji on this page https://www.sliderrevolution.com/resources/css-dropdown-menu/)
     - https://send-anywhere.com/#transfer
     
     HEADER: (see hubs.docker.com for more inspiration)
@@ -118,4 +110,5 @@ Others:
 - no usb cable: freepik.com/free-vector/usb-connection-abstract-concept-illustration_20770450.htm
 (<a href='https://www.freepik.com/vectors/usb-cable'>Usb cable vector created by vectorjuice - www.freepik.com</a>)
 - easy(can cut last frame): /businessman-moving-slider-online-order-schoolgirl_6362811.htm
+
 

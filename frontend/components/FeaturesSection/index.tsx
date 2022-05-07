@@ -5,7 +5,6 @@ import { FaReact, FaHistory } from 'react-icons/fa'
 import { RiChatPrivateLine } from 'react-icons/ri'
 import { SiSpringsecurity, SiAuthy } from 'react-icons/si'
 import { MdOutlinePhonelink, MdOutlinePhonelinkLock, MdPhonelink } from 'react-icons/md'
-import { Center, Divider, Show } from '@chakra-ui/react'
 
 
 const Feature: React.FunctionComponent<{ 
@@ -52,7 +51,7 @@ const FeaturesSection: React.FunctionComponent = () => {
             <Feature 
                className="px-4 col-span-12 sm:col-span-6 md:col-span-4"
                title="Unique private sessions" 
-               icon={<RiChatPrivateLine />}
+               icon={<RiChatPrivateLine style={{ fontSize: '2.5rem' }} />}
                description="
                   Each session has a unique code. Moreover, you decide who joins the session.
                   You are also free to remove devices and block a session from new devices.
@@ -69,17 +68,17 @@ const FeaturesSection: React.FunctionComponent = () => {
             />
             <Feature 
                className="px-4 col-span-12 sm:col-span-6 md:col-span-4"
-               title="Consistent history" 
+               title="Guaranteed security" 
                icon={<SiSpringsecurity />}
                description="
-                  You can view all previous sessions and transactions in a single click.
-                  Because we are there, you do not need to remember data. Information 
+                  You can view all past sessions and transactions in a single click.
+                  Because we are there, you do not need to remember your data. Information 
                   is what's useful and we help you keep in touch with it!
                "
             />
             <Feature 
                className="px-4 col-span-12 sm:col-span-6 md:col-span-4"
-               title="Guaranteed security" 
+               title="Consistent history" 
                icon={<FaHistory />}
                description="
                   In addition to the default security, you can add a custom code that 

@@ -14,8 +14,18 @@
 }
 
 .navDiv button:hover,
-.navDiv a:hover {
+.navDiv a:hover,
+.profileLink:hover {
     transition: color 5ms ease;
+}
+
+.profileLink {
+    font-size: 1.1rem;
+    color: var(--text)
+}
+
+.profileLink:hover {
+    color: var(--blue);
 }
 
 .sessionMenuWrp {

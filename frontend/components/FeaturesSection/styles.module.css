@@ -2,7 +2,7 @@
 .featuresParent {
    padding: 5px 10px;
    /* color: #6c737d; */
-   color: #535c68;
+   color: var(--text);
 }
 
 .featureWrp:last-child {
@@ -10,6 +10,7 @@
 }
 
 .iconWrp {
+   font-size: 2.3rem;
    color: var(--blue);
 }
 

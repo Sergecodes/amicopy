@@ -36,7 +36,7 @@ const HowItWorks: React.FunctionComponent = () => {
                }
                description={
                   <p>
-                     Create a space for devices with which you want to enable copying and pasting.
+                     Create a space for devices to copy and paste among each other.
                   </p>
                }
                status="process" 
@@ -62,7 +62,7 @@ const HowItWorks: React.FunctionComponent = () => {
                description={
                   <p>
                      Invite devices using an auto-generated and unique link. 
-                     You choose which devices should join the session!
+                     You choose which devices can join the session!
                   </p>
                }
                status="process" 

@@ -35,7 +35,7 @@ export function useWindowSize() {
 
       window.onresize = function() {
          clearTimeout(doIt);
-         doIt = setTimeout(updateSize, 500);
+         doIt = setTimeout(updateSize, 700);
       }
 
       // window.addEventListener('resize', updateSize);

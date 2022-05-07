@@ -1,5 +1,5 @@
 import '../styles/tailwindImports.css'
-import 'antd/dist/antd.css'
+// import 'antd/dist/antd.css'
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import { ChakraProvider } from '@chakra-ui/react'

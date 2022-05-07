@@ -1,10 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { 
-   Button, Menu, MenuButton, MenuGroup, 
+   Menu, MenuButton, MenuGroup, 
    MenuDivider, MenuItem, MenuList, Divider
 } from '@chakra-ui/react'
-import { Switch } from 'antd'
+import { Switch, Button } from 'antd'
 import styles from './styles.module.css'
 import { AiOutlinePlus } from 'react-icons/ai'
 import { BiGitMerge } from 'react-icons/bi'
@@ -24,25 +24,14 @@ const DesktopNavbar: React.FunctionComponent<{ loggedIn: boolean }> = (props) =>
             </Link>
          </div>
          <div className={`w-3/4 flex ${styles.navDiv}`}>
-            <UpgradeBtn />
-            <div className={props.loggedIn ? `` : `mx-12 ${styles.authLinksWrp}`}>
+            <div>
+               <UpgradeBtn style={{ fontSize: '1.1rem' }} />
+            </div>
+            <div className={props.loggedIn ? `mx-8` : `mx-12 ${styles.authLinksWrp}`}>
                {props.loggedIn ?
-                  <Menu>
-                     <MenuButton as={Button} colorScheme='pink'>
-                     Profile
-                     </MenuButton>
-                     <MenuList>
-                        <MenuGroup title='Profile'>
-                           <MenuItem>My Account</MenuItem>
-                           <MenuItem>Payments </MenuItem>
-                        </MenuGroup>
-                        <MenuDivider />
-                        <MenuGroup title='Help'>
-                           <MenuItem>Docs</MenuItem>
-                           <MenuItem>FAQ</MenuItem>
-                        </MenuGroup>
-                     </MenuList>
-                  </Menu>
+                  <Link href='/'>
+                     <a className={styles.profileLink}>My profile</a>
+                  </Link>
                   :
                   <>
                      <Link href='/'><a>Login</a></Link>
@@ -57,10 +46,13 @@ const DesktopNavbar: React.FunctionComponent<{ loggedIn: boolean }> = (props) =>
                <Menu>
                   <MenuButton className={styles.sessionBtn}>Sessions</MenuButton>
                   <MenuList>
-                     <MenuItem icon={<AiOutlinePlus />}>
+                     <MenuItem 
+                        style={{ color: 'var(--pink)', fontWeight: 600 }} 
+                        icon={<AiOutlinePlus />}
+                     >
                         <Link href='/'><a>New session</a></Link>
                      </MenuItem>
-                     <MenuItem icon={<BiGitMerge />}>
+                     <MenuItem style={{ color: 'var(--pink)' }} icon={<BiGitMerge />}>
                         <Link href='/'><a>Join a session</a></Link>
                      </MenuItem>
                      <MenuItem icon={<BsViewList />}>
