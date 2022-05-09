@@ -1,8 +1,8 @@
 import { Steps } from 'antd'
 import Image from 'next/image'
 import styles from './styles.module.css'
-import { useWindowSize } from '../../utils'
-import SectionIntro from '../../components/SectionIntro'
+import { useWindowSize } from '../../../utils'
+import SectionIntro from '../../Layout/SectionIntro'
 
 
 const { Step } = Steps;
@@ -35,9 +35,7 @@ const HowItWorks: React.FunctionComponent = () => {
                   </div>
                }
                description={
-                  <p>
-                     Create a space for devices to copy and paste among each other.
-                  </p>
+                  <p>Create a space for devices to copy and paste among each other.</p>
                }
                status="process" 
             />
