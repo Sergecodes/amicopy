@@ -1,6 +1,5 @@
 import styles from './styles.module.css'
-import SectionIntro from '../SectionIntro'
-import { ReactNode } from 'react';
+import SectionIntro from '../../Layout/SectionIntro'
 import { FaReact, FaHistory } from 'react-icons/fa'
 import { RiChatPrivateLine } from 'react-icons/ri'
 import { SiSpringsecurity, SiAuthy } from 'react-icons/si'
@@ -9,7 +8,7 @@ import { MdOutlinePhonelink, MdOutlinePhonelinkLock, MdPhonelink } from 'react-i
 
 const Feature: React.FunctionComponent<{ 
    className?: string,
-   icon: ReactNode, 
+   icon: React.ReactNode, 
    title: string, 
    description: string 
 }> = (props) => {

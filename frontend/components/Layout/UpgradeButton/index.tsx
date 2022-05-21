@@ -6,9 +6,9 @@ const UpgradeBtn: React.FunctionComponent<{
   className?: string 
 }> = (props) => {
   return (
-    <Link href="/">
+    <Link href="/pricing">
       <a className={props.className || ''} style={props.style || {}}>
-        <button>Upgrade</button>
+        <button>Pricing</button>
       </a>
     </Link>
   );

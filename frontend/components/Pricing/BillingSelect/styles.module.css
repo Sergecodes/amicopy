@@ -1,0 +1,28 @@
+
+.billingContainer {
+   width: fit-content;
+ }
+ 
+ .btnsWrp {
+   background-color: #E5E5E9;
+ }
+ 
+ .billingBtn {
+   color: #83A1C7 !important;
+   font-size: 1rem !important;
+   line-height: 1.5rem !important;
+   border-width: 0;
+   padding: 6px 1.4rem;
+   height: 50px;
+   vertical-align: middle;
+ }
+ 
+ .billingBtn:hover {
+   color: #83A1C7;
+ }
+ 
+ .activeBilling {
+   font-weight: bold;
+ }
+ 
+ 

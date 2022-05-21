@@ -1,5 +1,5 @@
 import styles from './styles.module.css'
-import SectionIntro from '../SectionIntro'
+import SectionIntro from '../../Layout/SectionIntro'
 import { Carousel, Card, Avatar } from 'antd'
 
 const { Meta } = Card;

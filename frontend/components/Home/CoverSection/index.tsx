@@ -3,7 +3,7 @@ import styles from './styles.module.css'
 import { AiOutlineUserAdd, AiOutlinePlus } from 'react-icons/ai'
 import { BsChevronDoubleDown } from 'react-icons/bs'
 import { BiGitMerge } from 'react-icons/bi'
-import { theme } from '../../constants'
+import { theme } from '../../../constants'
 import Link from 'next/link'
 
 

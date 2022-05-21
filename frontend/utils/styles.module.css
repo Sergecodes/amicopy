@@ -1,0 +1,51 @@
+
+.ctaBtn,
+.tableBtn {
+  box-shadow: 0 3px 6px 0 rgb(0 0 0 / 14%);
+  padding: 0 20px;
+  height: 45px;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.tableBtn {
+  height: 40px;
+  font-size: 0.9rem;
+}
+
+.ctaBtn:hover,
+.tableBtn:hover {
+  box-shadow: 0 2px 8px 2px rgb(0 0 0 / 20%);
+}
+
+.viewProfileBtn {
+  color: var(--blue);
+  border-color: var(--blue);
+  font-size: 0.95rem;
+}
+
+.createSessionBtn,
+.createSessionBtn:hover,
+.createSessionBtn:focus {
+  color: var(--pink);
+  border-color: var(--pink);
+}
+
+.createSessionBtn:hover,
+.createSessionBtn:focus {
+  color: white;
+  background-color: var(--pink);
+}
+
+.goldGetStartedBtn,
+.goldGetStartedBtn:hover,
+.goldGetStartedBtn:focus {
+  /* color: black; */
+  background-color: gold;
+  border-color: transparent;
+}
+
+.tablePremiumBtn {
+  background-color: var(--blue);
+}
+
