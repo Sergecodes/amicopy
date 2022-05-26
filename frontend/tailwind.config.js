@@ -4,6 +4,12 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    colors: {
+      siteBlue: '#40a9ff',
+      sitePink: '#ea4c89',
+      siteBlack: 'rgb(26, 32, 44)',
+      siteText: '#535c68'
+    },
     extend: {},
   },
   plugins: [],

@@ -1,9 +1,9 @@
 import type { NextPage } from 'next'
-import CoverSection from '../components/Home/CoverSection'
-import HowItWorks from '../components/Home/HowItWorks'
-import FeaturesSection from '../components/Home/FeaturesSection'
-import Testimonials from '../components/Home/Testimonials'
-import StatisticsSection from '../components/Home/StatisticsSection'
+import CoverSection from '../components/home/CoverSection'
+import HowItWorks from '../components/home/HowItWorks'
+import FeaturesSection from '../components/home/FeaturesSection'
+import Testimonials from '../components/home/Testimonials'
+import StatisticsSection from '../components/home/StatisticsSection'
 import Layout from '../components/Layout'
 
 
@@ -12,7 +12,7 @@ const Home: NextPage = () => {
   const loggedIn = false;
 
   return (
-    <Layout>
+    <Layout title="Amicopy" loggedIn={loggedIn}>
       <CoverSection loggedIn={loggedIn} /> 
       <a id="howItWorks"></a>       
       {Space}

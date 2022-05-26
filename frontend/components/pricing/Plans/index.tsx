@@ -1,15 +1,13 @@
 import { Card, Badge } from "antd";
 import { GiCheckMark } from "react-icons/gi";
 import { getCtaBtn } from "../../../utils";
-import type { BillingType } from '../../../types'
+import type { BillingType, UserPlanState } from '../../../types'
 // import SectionIntro from '../../../components/Layout/SectionIntro'
 
 
 type Props = {
    type: BillingType;
-   loggedIn: boolean;
-   isPremium: boolean;
-   isGold: boolean;
+   planState: UserPlanState;
 };
 
 
@@ -26,17 +24,10 @@ const FeatureItem: React.FunctionComponent<{ text: string }> = (props) => {
 
 
 const Plans: React.FunctionComponent<Props> = (props) => {
-   const { type, loggedIn, isPremium, isGold } = props;
+   const { type, planState } = props;
 
-   const premiumPrice = { month: "1.99", year: "3" };
-   const goldPrice = { month: "3.99", year: "3" };
-
-   const userPlanState = (function () {
-      if (isGold) return "isGold";
-      else if (isPremium) return "isPremium";
-      else if (loggedIn) return "loggedIn";
-      return "";
-   })();
+   const premiumPrice = { month: 1.99, year: 3 };
+   const goldPrice = { month: 3.99, year: 3 };
 
    return (
       // <section className="p-5">
@@ -52,13 +43,14 @@ const Plans: React.FunctionComponent<Props> = (props) => {
                      <span className="font-bold">$0</span>
                   </div>
                </div>
-               <div className="mb-8">{getCtaBtn("free", userPlanState)}</div>
+               <div className="mb-8">{getCtaBtn("free", planState)}</div>
                <div className="text-lg">
                   <h5 className="mb-5 text-xl">Free features include:</h5>
                   <div className="pl-4">
-                     <FeatureItem text="Hello" />
-                     <FeatureItem text="Hello" />
-                     <FeatureItem text="Hello" />
+                     <FeatureItem text="Access to our services without signing up" />
+                     <FeatureItem text="Sign up to backup and keep track of your data" />
+                     <FeatureItem text="Limited devices and users per session" />
+                     <FeatureItem text="Limited access to our services" />
                   </div>
                </div>
             </Card>
@@ -70,7 +62,7 @@ const Plans: React.FunctionComponent<Props> = (props) => {
                   <h3 className="text-2xl font-medium mb-0 planTier">Premium</h3>
                   <div className="text-3xl">
                      <span className="tracking-wider font-bold">
-                        {premiumPrice[type]}
+                        ${premiumPrice[type]}
                      </span>
                      <span className="text-sm ml-1 inline-block mb-3">/ month</span>
                      {type === "year" ? (
@@ -86,13 +78,13 @@ const Plans: React.FunctionComponent<Props> = (props) => {
                      )}
                   </div>
                </div>
-               <div className="mb-8">{getCtaBtn("premium", userPlanState)}</div>
+               <div className="mb-8">{getCtaBtn("premium", planState)}</div>
                <div className="text-lg">
                   <h5 className="mb-5 text-xl">Premium features include:</h5>
                   <div className="pl-4">
-                     <FeatureItem text="Hello" />
-                     <FeatureItem text="Hello" />
-                     <FeatureItem text="Hello" />
+                     <FeatureItem text="More access to our services" />
+                     <FeatureItem text="More devices and users per session" />
+                     <FeatureItem text="No Ads" />
                   </div>
                </div>
             </Card>
@@ -103,7 +95,7 @@ const Plans: React.FunctionComponent<Props> = (props) => {
                         <h3 className="text-2xl font-medium mb-0 planTier">Gold</h3>
                         <div className="text-3xl">
                            <span className="tracking-wider font-bold">
-                              {goldPrice[type]}
+                              ${goldPrice[type]}
                            </span>
                            <span className="text-sm ml-1 inline-block mb-3">
                               / month
@@ -121,13 +113,13 @@ const Plans: React.FunctionComponent<Props> = (props) => {
                            )}
                         </div>
                      </div>
-                     <div className="mb-8">{getCtaBtn("gold", userPlanState)}</div>
+                     <div className="mb-8">{getCtaBtn("gold", planState)}</div>
                      <div className="text-lg">
                         <h5 className="mb-5 text-xl">Gold features include:</h5>
                         <div className="pl-4">
-                           <FeatureItem text="Hello" />
-                           <FeatureItem text="Hello" />
-                           <FeatureItem text="Hello" />
+                           <FeatureItem text="All Premium features" />
+                           <FeatureItem text="Full access to all our services without restriction" />
+                           <FeatureItem text="Highest security with two-factor authentication" />
                         </div>
                      </div>
                   </Card>

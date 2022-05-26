@@ -2,12 +2,12 @@ import { MdDoNotDisturbAlt } from "react-icons/md";
 import { GiCheckMark } from "react-icons/gi";
 import { Tooltip, Table } from "antd";
 import { getCtaBtn } from "../../../utils";
-import type { ColumnsType } from 'antd/es/table'
+import type { UserPlanState } from '../../../types';
+import type { ColumnsType } from 'antd/es/table';
+
 
 type Props = {
-   isGold: boolean;
-   loggedIn: boolean;
-   isPremium: boolean;
+   planState: UserPlanState
 }
 
 type PlanInfo = {
@@ -20,14 +20,8 @@ type PlanInfo = {
 
 
 const PricingTable: React.FunctionComponent<Props> = (props) => {
-   const { loggedIn, isPremium, isGold } = props;
+   const { planState } = props;
    
-   const userPlanState = (function () {
-      if (isGold) return "isGold";
-      else if (isPremium) return "isPremium";
-      else if (loggedIn) return "loggedIn";
-      return "";
-   })();
 
    
    // See https://ant.design/components/table/#Using-in-TypeScript/
@@ -148,9 +142,9 @@ const PricingTable: React.FunctionComponent<Props> = (props) => {
       {
          key: 6,
          topic: "",
-         free: getCtaBtn("free", userPlanState, true),
-         premium: getCtaBtn("premium", userPlanState, true),
-         gold: getCtaBtn("gold", userPlanState, true)
+         free: getCtaBtn("free", planState, true),
+         premium: getCtaBtn("premium", planState, true),
+         gold: getCtaBtn("gold", planState, true)
       }
    ];
 
@@ -167,7 +161,7 @@ const PricingTable: React.FunctionComponent<Props> = (props) => {
          // footer={(data) => 'Footer'}
          />
          
-         <style jsx>{`
+         <style jsx global>{`
             .tooltipDiv {
                border-bottom: 1px dotted gray;
                /* Prevent border from extending content */

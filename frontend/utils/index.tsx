@@ -14,28 +14,12 @@ const useIsomorphicLayoutEffect =
 export function useWindowSize() {
    // Set initial size to enable server site rendering
    const [size, setSize] = useState([1000, 670]);
-   // useLayoutEffect(() => {
-   //    function updateSize() {
-   //       setSize([window.innerWidth, window.innerHeight]);
-   //    }
-
-   //    window.addEventListener('resize', updateSize);
-   //    updateSize();
-
-   //    return () => window.removeEventListener('resize', updateSize);
-   // }, []);
 
    useIsomorphicLayoutEffect(() => {
       let doIt: NodeJS.Timeout;
 
       function updateSize() {
-         console.log(typeof window);
          setSize([window.innerWidth, window.innerHeight]);
-         // if (typeof window === "undefined") {
-         //    setSize([1000, 670]);
-         // } else {
-         //    setSize([window.innerWidth, window.innerHeight]);
-         // }
       }
 
       function doUpdateSize() {
@@ -49,7 +33,9 @@ export function useWindowSize() {
       return () => window.removeEventListener("resize", doUpdateSize);
    }, []);
 
+   console.log(typeof window);
    console.log("rendered use window size");
+   
    return size;
 }
 
@@ -100,21 +86,21 @@ export function getCtaBtn(
       if (type === "free" || type === "premium")
          return <Link href="/profile"><a>{ViewProfileBtn}</a></Link>;
       else if (type === "gold")
-         return <Link href="/sign-up?to-gold"><a>{GoldGetStartedBtn}</a></Link>;
+         return <Link href="/sign-up/to-gold"><a>{GoldGetStartedBtn}</a></Link>;
    } else if (state === "loggedIn") {
       if (type === "free") return <Link href="/new-session"><a>{CreateSessionBtn}</a></Link>;
       else if (type === "premium")
-         return <Link href="/sign-up?to-premium"><a>{GetStartedBtn}</a></Link>;
+         return <Link href="/sign-up/to-premium"><a>{GetStartedBtn}</a></Link>;
       else if (type === "gold")
-         return <Link href="/sign-up?to-gold"><a>{GoldGetStartedBtn}</a></Link>;
+         return <Link href="/sign-up/to-gold"><a>{GoldGetStartedBtn}</a></Link>;
    }
 
    // Not logged in 
    if (type === "gold") 
-      return <Link href="/sign-up?to-gold"><a>{GoldGetStartedBtn}</a></Link>;
+      return <Link href="/sign-up/to-gold"><a>{GoldGetStartedBtn}</a></Link>;
 
    else if (type === "premium")
-      return <Link href="/sign-up?to-premium"><a>{GetStartedBtn}</a></Link>;
+      return <Link href="/sign-up/to-premium"><a>{GetStartedBtn}</a></Link>;
 
-      return <Link href="/sign-up"><a>{GetStartedBtn}</a></Link>;
+   return <Link href="/sign-up"><a>{GetStartedBtn}</a></Link>;
 }
