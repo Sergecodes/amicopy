@@ -11,7 +11,7 @@ type Props = {
 };
 
 
-const FeatureItem: React.FunctionComponent<{ text: string }> = (props) => {
+const FeatureItem: React.FC<{ text: string }> = (props) => {
    return (
       <p className="mb-2">
          <span className="inline-block text-base mr-2">
@@ -23,7 +23,7 @@ const FeatureItem: React.FunctionComponent<{ text: string }> = (props) => {
 };
 
 
-const Plans: React.FunctionComponent<Props> = (props) => {
+const Plans: React.FC<Props> = (props) => {
    const { type, planState } = props;
 
    const premiumPrice = { month: 1.99, year: 3 };

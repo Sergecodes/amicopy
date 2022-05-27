@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 
-const UpgradeBtn: React.FunctionComponent<{ 
+const UpgradeBtn: React.FC<{ 
   style?: React.CSSProperties, 
   className?: string 
 }> = (props) => {

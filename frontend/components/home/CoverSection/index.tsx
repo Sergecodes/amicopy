@@ -7,7 +7,7 @@ import { theme } from '../../../constants'
 import Link from 'next/link'
 
 
-const CoverSection: React.FunctionComponent<{ loggedIn: boolean }> = (props) => {
+const CoverSection: React.FC<{ loggedIn: boolean }> = (props) => {
    return (
       <section className={`flex items-center justify-center ${styles.container}`}>
          <div className={`text-center px-4 ${styles.sectionDiv}`}>

@@ -6,7 +6,7 @@ import { SiSpringsecurity, SiAuthy } from 'react-icons/si'
 import { MdOutlinePhonelink, MdOutlinePhonelinkLock, MdPhonelink } from 'react-icons/md'
 
 
-const Feature: React.FunctionComponent<{ 
+const Feature: React.FC<{ 
    className?: string,
    icon: React.ReactNode, 
    title: string, 
@@ -29,7 +29,7 @@ const Feature: React.FunctionComponent<{
 }
 
 
-const FeaturesSection: React.FunctionComponent = () => {
+const FeaturesSection: React.FC = () => {
 
    return (
       <section>

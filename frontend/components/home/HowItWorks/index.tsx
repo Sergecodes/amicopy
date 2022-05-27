@@ -7,7 +7,7 @@ import SectionIntro from '../../Layout/SectionIntro'
 
 const { Step } = Steps;
 
-const HowItWorks: React.FunctionComponent = () => {
+const HowItWorks: React.FC = () => {
    const [width, height] = useWindowSize();
 
    let maxWidth = 810;  // step direction depends on max width

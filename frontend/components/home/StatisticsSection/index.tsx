@@ -116,7 +116,7 @@ export default class StatisticsSection extends React.Component<{}, State> {
 
 
 /*
-const StatisticsSectiont: React.FunctionComponent = () => {
+const StatisticsSectiont: React.FC = () => {
    const [ numSessions, setNumSessions ] = useState(0);
    const [ numTransactions, setNumTransactions ] = useState(0);
    const [ numDevices, setNumDevices ] = useState(0);

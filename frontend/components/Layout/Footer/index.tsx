@@ -6,7 +6,7 @@ import { FiMail, FiTwitter, FiFacebook } from 'react-icons/fi'
 import FeedbackForm from '../FeedbackForm'
 
 
-const Footer: React.FunctionComponent = () => {
+const Footer: React.FC = () => {
 
    return (
       <footer className="">
@@ -18,7 +18,7 @@ const Footer: React.FunctionComponent = () => {
                   </Link>
                </li>
                <li>
-                  <Link href="#">
+                  <Link href="/pricing">
                      <a>Pricing</a>
                   </Link>
                </li>

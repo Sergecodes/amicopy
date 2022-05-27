@@ -19,7 +19,7 @@ type PlanInfo = {
 }
 
 
-const PricingTable: React.FunctionComponent<Props> = (props) => {
+const PricingTable: React.FC<Props> = (props) => {
    const { planState } = props;
    
 

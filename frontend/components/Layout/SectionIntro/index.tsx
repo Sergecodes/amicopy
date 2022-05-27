@@ -1,7 +1,7 @@
 import { CSSProperties } from "react";
 
 
-const SectionIntro: React.FunctionComponent<{ 
+const SectionIntro: React.FC<{ 
    heading: string, 
    span1?: string, 
    span2?: string,

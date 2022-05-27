@@ -10,7 +10,7 @@ type Props = {
 }
 
 
-const BillingSelect: React.FunctionComponent<Props> = (props) => {
+const BillingSelect: React.FC<Props> = (props) => {
    return (
       <section className={`text-center mx-auto ${styles.billingContainer}`}>
          <div className={`rounded-md p-1 ${styles.btnsWrp}`}>

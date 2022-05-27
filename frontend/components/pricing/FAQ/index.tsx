@@ -3,7 +3,7 @@ import { AiOutlineCaretRight, AiOutlineCaretDown } from "react-icons/ai";
 
 const { Panel } = Collapse;
 
-const FAQ: React.FunctionComponent = () => {
+const FAQ: React.FC = () => {
    const faqContent = [
       {
          key: 0,

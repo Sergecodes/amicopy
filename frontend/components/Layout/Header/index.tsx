@@ -5,7 +5,7 @@ import MobileNavbar from '../MobileNavbar'
 import DesktopNavbar from '../DesktopNavbar'
 
 
-const Header: React.FunctionComponent<{ loggedIn: boolean }> = (props) => {
+const Header: React.FC<{ loggedIn: boolean }> = (props) => {
   const [showMenu, setShowMenu] = useState(false);
 
   const handleNavBarClick: React.MouseEventHandler = () => setShowMenu(!showMenu);

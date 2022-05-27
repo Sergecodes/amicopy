@@ -1,30 +1,30 @@
 import type { NextPage } from 'next';
 import Header from '../components/auth/Header';
-import Login from '../components/auth/Login';
+import Signup from '../components/auth/Signup';
 import Layout from '../components/Layout'
 import { useContext } from 'react'
 import { DataContext } from './_app'
 import _ from 'lodash'
 
 
-const LoginPage: NextPage = () => {
+const SignupPage: NextPage = () => {
    const { user } = useContext(DataContext);
 
    return (
-      <Layout title="Pricing" loggedIn={!(_.isEmpty(user))}>
+      <Layout title="Signup" loggedIn={!(_.isEmpty(user))}>
          <div className="min-h-full h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
                <Header
-                  heading="Login to your account"
-                  paragraph="Don't have an account yet? "
-                  linkName="Signup"
-                  linkUrl="/signup"
+                  heading="Sign up to create an account"
+                  paragraph="Already have an account? "
+                  linkName="Login"
+                  linkUrl="/login"
                />
-               <Login />
+               <Signup />
             </div>
          </div>
       </Layout>
    );
 }
 
-export default LoginPage;
+export default SignupPage;

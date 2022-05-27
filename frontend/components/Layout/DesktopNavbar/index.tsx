@@ -13,7 +13,7 @@ import { BsViewList, BsSun } from 'react-icons/bs'
 import UpgradeBtn from '../UpgradeButton'
 
 
-const DesktopNavbar: React.FunctionComponent<{ loggedIn: boolean }> = (props) => {
+const DesktopNavbar: React.FC<{ loggedIn: boolean }> = (props) => {
    return (
       <section className={`hidden ${styles.deskNavSection}`}>
          <div className={`w-1/4`}>
@@ -34,11 +34,11 @@ const DesktopNavbar: React.FunctionComponent<{ loggedIn: boolean }> = (props) =>
                   </Link>
                   :
                   <>
-                     <Link href='/'><a>Login</a></Link>
+                     <Link href='/login'><a>Login</a></Link>
                      <span className="mx-2 inline-block" style={{ transform: 'scale(1.4)' }}>
                         ~
                      </span>
-                     <Link href='/'><a>Sign up</a></Link>
+                     <Link href='/signup'><a>Sign up</a></Link>
                   </>
                }     
             </div>

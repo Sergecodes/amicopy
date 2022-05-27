@@ -5,7 +5,7 @@ import { Carousel, Card, Avatar } from 'antd'
 const { Meta } = Card;
 
 
-const Testimonials: React.FunctionComponent = () => {
+const Testimonials: React.FC = () => {
 
    return (
       <section className={``}>

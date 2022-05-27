@@ -5,11 +5,15 @@ import FeaturesSection from '../components/home/FeaturesSection'
 import Testimonials from '../components/home/Testimonials'
 import StatisticsSection from '../components/home/StatisticsSection'
 import Layout from '../components/Layout'
+import { useContext } from 'react'
+import { DataContext } from './_app'
+import _ from 'lodash'
 
 
 const Home: NextPage = () => {
+  const { user } = useContext(DataContext);
   const Space = <div style={{ minHeight: '5rem' }}></div>;
-  const loggedIn = false;
+  const loggedIn = !(_.isEmpty(user));
 
   return (
     <Layout title="Amicopy" loggedIn={loggedIn}>

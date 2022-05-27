@@ -6,12 +6,16 @@ import BillingSelect from '../components/pricing/BillingSelect'
 import Plans from '../components/pricing/Plans'
 import Table from '../components/pricing/Table'
 import FAQ from '../components/pricing/FAQ'
+import { useContext } from 'react'
+import { DataContext } from './_app'
+import _ from 'lodash'
 // import SectionIntro from '../components/Layout/SectionIntro';
 
 
 const Pricing: NextPage = () => {
+   const { user } = useContext(DataContext);
    const [billingType, setBillingType] = useState<BillingType>('month');
-   const loggedIn = false, isPremium = false, isGold = false;
+   const loggedIn = !(_.isEmpty(user)), isPremium = false, isGold = false;
    const Space = <div style={{ minHeight: '4rem' }}></div>;
 
    const userPlanState: UserPlanState = (function () {

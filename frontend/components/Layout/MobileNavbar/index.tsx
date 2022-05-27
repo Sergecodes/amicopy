@@ -8,7 +8,7 @@ import { BsSun } from 'react-icons/bs'
 import styles from './styles.module.css'
 
 
-const MobileNavbar: React.FunctionComponent<{ 
+const MobileNavbar: React.FC<{ 
   loggedIn: boolean, 
   onBarClick: React.MouseEventHandler 
 }> = (props) => {
@@ -32,11 +32,11 @@ const MobileNavbar: React.FunctionComponent<{
         </div>
         <div className="flex">
           {props.loggedIn ? 
-            <Link href="/">
+            <Link href="#">
               <a className={styles.rightLink}>My profile</a>
             </Link>
             : 
-            <Link href="/">
+            <Link href="/login">
               <a className={styles.rightLink}>Sign in</a>
             </Link>
           }
