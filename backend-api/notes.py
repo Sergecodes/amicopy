@@ -1,6 +1,6 @@
 
 TODO BACKEND:
-    - add more data to token, such as pricing plan
+    - use session auth
     - implement notifications(read/unread) on transactions. 
     eg. add m2m field read_by on Transaction ...
     - fix s3 bucket and test obviously

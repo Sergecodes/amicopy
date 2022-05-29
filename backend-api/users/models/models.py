@@ -21,10 +21,10 @@ class User(AbstractUser, UserOperations):
 
     username = models.CharField(
         _('username'),
-        max_length=50,
+        max_length=36,
         unique=True,
         help_text=_(
-            'Your username should be not more than 50 characters '
+            'Your username should be between 3 and 36 characters '
             'and may contain only letters, numbers, hyphens, and underscores; '
             'no other characters are allowed.'
         ),

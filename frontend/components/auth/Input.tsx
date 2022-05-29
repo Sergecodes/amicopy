@@ -31,7 +31,7 @@ const Input: React.FC<Props> = (props) => {
    };
 
    return (
-      <div className="my-5">
+      <div className={`my-5 ${props.name === "password" ? ' relative' : ''}`}>
          <label htmlFor={props.labelFor} className="sr-only">
             {props.labelText}
          </label>
