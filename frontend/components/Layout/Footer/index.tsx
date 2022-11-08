@@ -1,7 +1,7 @@
 import styles from './styles.module.css'
 import Link from 'next/link'
 import { Center } from '@chakra-ui/react'
-import { FiMail, FiTwitter, FiFacebook } from 'react-icons/fi'
+import { FiMail, FiTwitter, FiFacebook, FiGithub } from 'react-icons/fi'
 // import { FaFacebook, FaTwitter } from 'react-icons/fa'
 import FeedbackForm from '../FeedbackForm'
 
@@ -58,6 +58,9 @@ const Footer: React.FC = () => {
 
          <Center className="py-8 text-lg">
             Copyright &copy; {new Date().getFullYear()} - amicopy
+            <a className="ml-4" href="https://github.com/Sergecodes/amicopy/tree/master/frontend">
+               <FiGithub />
+            </a>
          </Center>
       </footer>
    );

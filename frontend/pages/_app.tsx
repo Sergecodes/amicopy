@@ -9,7 +9,7 @@ import { createContext } from 'react';
 
 export const DataContext = createContext({
   siteData: {
-    theme: "light"
+    // theme: "light"
   },
   user: {}
 });
@@ -19,7 +19,8 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   // const [user, setUser] = useState<IUser | null>(null);
   // todo: https://nextjs.org/docs/authentication
   const user = {};
-  const siteData = { theme: "light" };
+  // const siteData = { theme: "light" };
+  const siteData = {};
 
   return (
     <ChakraProvider>

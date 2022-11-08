@@ -9,9 +9,7 @@ const { Step } = Steps;
 
 const HowItWorks: React.FC = () => {
    const [width, height] = useWindowSize();
-
    let maxWidth = 810;  // step direction depends on max width
-   console.log("rendered how it works");
 
    return (
       <section className={``}>

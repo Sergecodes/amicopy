@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { useColorModeValue } from '@chakra-ui/react'
 
 
 type Props = {
@@ -10,12 +11,14 @@ type Props = {
 }
 
 const Header: React.FC<Props> = (props) => {
+   let headingColor = useColorModeValue('rgb(17, 24, 39)', 'slategray');
+
    return (
       <div className="mb-10">
          <div className="flex justify-center">
             <Image src="/logo.png" height="3.5rem" width="3.5rem" alt="amicopy logo" />
          </div>
-         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+         <h2 className="mt-6 text-center text-3xl font-extrabold" style={{color: headingColor}}>
             {props.heading}
          </h2>
          <p className="mt-2 text-center text-sm text-gray-600 mt-5">

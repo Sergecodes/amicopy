@@ -1,15 +1,15 @@
 
-NEXT UP:
-- pricing page (display monthly and yearly pricing, with differences between each plan)
-(https://www.iloveimg.com/pricing)
 
 
+- post email confirmation: welcome user to the site, their email has been confirmed
+- change password 
+- change password done
+- reset / forgot password 
+- password reset done
+- session creation page (form)
 
-TODO:
-- implement light/dark mode
+
 - implement authentication
-- signup page 
-- login page
 - post email confirmation: welcome user to the site, their email has been confirmed
 - session creation form page
     - session form (enter session title / optional creator code)

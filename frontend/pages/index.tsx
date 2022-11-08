@@ -16,7 +16,7 @@ const Home: NextPage = () => {
   const loggedIn = !(_.isEmpty(user));
 
   return (
-    <Layout title="Amicopy" loggedIn={loggedIn}>
+    <Layout title="Home" loggedIn={loggedIn}>
       <CoverSection loggedIn={loggedIn} /> 
       <a id="howItWorks"></a>       
       {Space}

@@ -1,4 +1,5 @@
 import { Collapse } from "antd";
+import { useColorModeValue } from '@chakra-ui/react';
 import { AiOutlineCaretRight, AiOutlineCaretDown } from "react-icons/ai";
 
 const { Panel } = Collapse;
@@ -37,10 +38,11 @@ const FAQ: React.FC = () => {
       //    content: text
       // }
    ];
+   let headingColor = useColorModeValue('rgba(0, 0, 0, 0.85)', 'slategray');
 
    return (
       <section className="">
-         <h1 className="text-center text-2xl mt-8 mb-5">
+         <h1 className="text-center text-2xl mt-8 mb-5" style={{color: headingColor}}>
             Frequently Asked Questions
          </h1>
          <Collapse

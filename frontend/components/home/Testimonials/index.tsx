@@ -19,7 +19,7 @@ const Testimonials: React.FC = () => {
                      extra={<a href="#">Via Twitter</a>}
                      cover={
                         <p style={{ marginTop: '1rem', padding: '8px' }}>
-                           This is the description lorem adfadf asdfa dfadf adfa dfad fadf
+                           This is the content lorem ipsum ...
                         </p>
                      }
                   >
@@ -43,7 +43,7 @@ const Testimonials: React.FC = () => {
                      extra={<a href="#">Via Twitter</a>}
                      cover={
                         <p style={{ marginTop: '1rem', padding: '8px' }}>
-                           This is the description lorem adfadf asdfa dfadf adfa dfad fadf
+                           This is the content lorem ipsum ...
                         </p>
                      }
                   >
@@ -56,7 +56,7 @@ const Testimonials: React.FC = () => {
                               src="/gen5.jpeg" 
                            />
                         }
-                        description="Daniel K."
+                        description="Victor S."
                      />
                   </Card>
                </div>
@@ -67,7 +67,7 @@ const Testimonials: React.FC = () => {
                      extra={<a href="#">Via Twitter</a>}
                      cover={
                         <p style={{ marginTop: '1rem', padding: '8px' }}>
-                           This is the description lorem adfadf asdfa dfadf adfa dfad fadf
+                           This is the content lorem ipsum ...
                         </p>
                      }
                   >
@@ -80,7 +80,7 @@ const Testimonials: React.FC = () => {
                               src="/gen4.jpeg" 
                            />
                         }
-                        description="Daniel K."
+                        description="Omer Steph"
                      />
                   </Card>
                </div>

@@ -60,8 +60,8 @@ export default class StatisticsSection extends React.Component<{}, State> {
    }
 
    handleViewChange(inView: boolean, entry: IntersectionObserverEntry) {
-      console.log('Inview:', inView);
-      console.log(this.state.done);
+      // console.log('Inview:', inView);
+      // console.log(this.state.done);
 
       if (!this.state.done) {
          if (inView) {
@@ -111,73 +111,4 @@ export default class StatisticsSection extends React.Component<{}, State> {
       );
    }
 }
-
-
-
-
-/*
-const StatisticsSectiont: React.FC = () => {
-   const [ numSessions, setNumSessions ] = useState(0);
-   const [ numTransactions, setNumTransactions ] = useState(0);
-   const [ numDevices, setNumDevices ] = useState(0);
-
-   let [totalSessions, totalTransactions, totalDevices] = [15, 10, 89];
-   let speed = 20;
-
-   const countSessionsUp = () => {
-      if (numSessions < totalSessions)
-         setNumSessions(numSessions + 1);
-   }
-
-   const countTransactionsUp = () => {
-      if (numTransactions < totalTransactions)
-         setNumTransactions(numTransactions + 1);  
-   }
-
-   const countDevicesUp = () => {
-      if (numDevices < totalDevices) {
-         console.log("counting devices up")
-         setNumDevices(numDevices + 1); 
-         console.log(numDevices)
-      }
-          
-   }
-
-   const handleViewChange = (inView: boolean, entry: IntersectionObserverEntry) => {
-      console.log('Inview:', inView);
-      console.log(numDevices);
-
-      if (inView) {
-         // const interval1 = setInterval(() => {
-         //    numSessions < totalSessions ? countSessionsUp() : clearInterval(interval1);
-         // }, speed);
-
-         // const interval2 = setInterval(() => {
-         //    numTransactions < totalTransactions ? countTransactionsUp() : clearInterval(interval2);
-         // }, speed);
-
-         const interval3 = setInterval(() => {
-            numDevices < totalDevices ? countDevicesUp() : clearInterval(interval3);
-         }, speed);
-      }
-   }
-   
-   return (
-      <InView as="section" onChange={handleViewChange} className={`py-10 ${styles.container}`}>
-         <SectionIntro heading='Stats' />
-         <section>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5">
-               <div className="text-center">
-                  <span className="inline-block"><MdOutlineAddLink /></span>
-                  <span className={`font-bold`}>
-                     {numDevices}
-                  </span>
-                  <span className={`font-bold`}></span>
-               </div>
-            </div>
-         </section>
-      </InView>
-   );
-}
-*/
 

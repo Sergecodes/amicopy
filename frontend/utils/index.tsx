@@ -32,9 +32,6 @@ export function useWindowSize() {
 
       return () => window.removeEventListener("resize", doUpdateSize);
    }, []);
-
-   console.log(typeof window);
-   console.log("rendered use window size");
    
    return size;
 }

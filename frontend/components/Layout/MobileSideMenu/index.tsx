@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import classnames from 'classnames'
-import { Divider } from '@chakra-ui/react'
+import { Divider, useColorModeValue } from '@chakra-ui/react'
 import styles from './styles.module.css'
 import UpgradeBtn from '../UpgradeButton'
 import { AiOutlinePlus, AiOutlineLogin, AiOutlineLogout } from 'react-icons/ai'
@@ -13,6 +13,13 @@ const MobileSideMenu: React.FC<{
     show: boolean,
     loggedIn: boolean
 }> = (props) => {
+    // var --text is #535c68
+    let colorValue = useColorModeValue('#535c68', 'lightslategrey');
+    let borderValue = useColorModeValue('1px solid #d4d7dc', 'none');
+    let liLinkStyle = {
+        color: colorValue, borderBottom: borderValue
+    };
+
     return (
         <section className={
             `w-full max-h-0 overflow-hidden ${classnames(
@@ -23,11 +30,15 @@ const MobileSideMenu: React.FC<{
             <nav className={styles.sideNav}>
                 <ul className={styles.sideNavUl}>
                     <li className={styles.sideNavLi}>
-                        <Link href='/'><a>Home</a></Link>
+                        <Link href='/'>
+                            <a style={liLinkStyle}>Home</a>
+                        </Link>
                     </li>
                     <li className={styles.sideNavLi}>
                         <label htmlFor="sessionCheckbox">
-                            <span className={styles.sessionsSpan}>Sessions</span>
+                            <span className={styles.sessionsSpan} style={liLinkStyle}>
+                                Sessions
+                            </span>
                         </label>
                         <input type="checkbox" id="sessionCheckbox" className={styles.sessionCheckbox} />
 
@@ -44,7 +55,7 @@ const MobileSideMenu: React.FC<{
                         </ul>
                     </li>
                     <li className={styles.sideNavLi}>
-                        <UpgradeBtn />
+                        <UpgradeBtn style={liLinkStyle} />
                     </li>
                     <li className={styles.sideNavLi}>
                         <div className={styles.accountDiv}>
@@ -84,7 +95,7 @@ const MobileSideMenu: React.FC<{
                                     </span>
                                     <span>
                                         <Link href="/login">
-                                            <a>
+                                            <a style={{color: colorValue}}>
                                                 <AiOutlineLogin className="mr-1" style={{ verticalAlign: 'text-top' }} />
                                                 Sign in
                                             </a>

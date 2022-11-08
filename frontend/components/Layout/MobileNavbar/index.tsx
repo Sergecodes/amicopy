@@ -1,7 +1,7 @@
 import { RiMenu5Fill } from 'react-icons/ri'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Divider } from '@chakra-ui/react'
+import { Divider, useColorMode } from '@chakra-ui/react'
 import { Switch } from 'antd'
 import { FaCloudSun } from 'react-icons/fa'
 import { BsSun } from 'react-icons/bs'
@@ -12,6 +12,8 @@ const MobileNavbar: React.FC<{
   loggedIn: boolean, 
   onBarClick: React.MouseEventHandler 
 }> = (props) => {
+  const { colorMode, toggleColorMode } = useColorMode();
+  
   return (
     <section className={`flex ${styles.mobNavSection}`}>
         <div className={styles.menuBars}>
@@ -45,10 +47,11 @@ const MobileNavbar: React.FC<{
           </span>
           <div className='ml-4'>
             <Switch
+              onChange={() => toggleColorMode()}
               checkedChildren={<BsSun />}
               unCheckedChildren={<FaCloudSun />}
               style={{ height: '25px', minWidth: '48px' }}
-              defaultChecked
+              defaultChecked={colorMode === 'light' ? true : false}
             />
           </div>
         </div>

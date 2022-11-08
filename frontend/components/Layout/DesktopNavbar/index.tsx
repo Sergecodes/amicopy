@@ -1,8 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { 
-   Menu, MenuButton, MenuGroup, 
-   MenuDivider, MenuItem, MenuList, Divider
+   Menu, MenuButton, useColorMode, MenuItem, MenuList, Divider
 } from '@chakra-ui/react'
 import { Switch, Button } from 'antd'
 import styles from './styles.module.css'
@@ -14,6 +13,8 @@ import UpgradeBtn from '../UpgradeButton'
 
 
 const DesktopNavbar: React.FC<{ loggedIn: boolean }> = (props) => {
+   const { colorMode, toggleColorMode } = useColorMode();
+
    return (
       <section className={`hidden ${styles.deskNavSection}`}>
          <div className={`w-1/4`}>
@@ -66,10 +67,11 @@ const DesktopNavbar: React.FC<{ loggedIn: boolean }> = (props) => {
             </span>
             <div className='ml-4'>
                <Switch
+                  onChange={() => toggleColorMode()}
                   checkedChildren={<BsSun />}
                   unCheckedChildren={<FaCloudSun />}
                   style={{ height: '25px', minWidth: '48px' }}
-                  defaultChecked
+                  defaultChecked={colorMode === 'light' ? true : false}
                />
             </div>
          </div>

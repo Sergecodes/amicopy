@@ -58,14 +58,14 @@ export default class FeedbackForm extends React.Component<{}, State> {
    }
 
    handleFormSuccess(values: any) {
-      console.log(values);
+      // console.log(values);
       this.setState({ visible: false });
    }
 
    handleFormFailed({ values, errorFields, outOfDate }: any) {
-      console.log(values);
-      console.log(errorFields);
-      console.log(outOfDate);
+      // console.log(values);
+      // console.log(errorFields);
+      // console.log(outOfDate);
    }
 
    render() {

@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
 import { useState } from 'react';
+import { useColorModeValue } from '@chakra-ui/react'
 import Layout from '../components/Layout'
 import type { BillingType, UserPlanState } from '../types'
 import BillingSelect from '../components/pricing/BillingSelect'
@@ -15,6 +16,7 @@ import _ from 'lodash'
 const Pricing: NextPage = () => {
    const { user } = useContext(DataContext);
    const [billingType, setBillingType] = useState<BillingType>('month');
+   let headingColor = useColorModeValue('rgba(0, 0, 0, 0.85)', 'slategray');
    const loggedIn = !(_.isEmpty(user)), isPremium = false, isGold = false;
    const Space = <div style={{ minHeight: '4rem' }}></div>;
 
@@ -32,7 +34,7 @@ const Pricing: NextPage = () => {
 
    return (
       <Layout title="Pricing" loggedIn={loggedIn}>
-         <h1 className="text-3xl text-center font-extrabold mb-8">
+         <h1 className="text-3xl text-center font-extrabold mt-32 mb-8" style={{color: headingColor}}>
             {/* Choose the plan that's right for you */}
             Choose the plan that suits your needs
          </h1>
@@ -48,6 +50,13 @@ const Pricing: NextPage = () => {
 
          <FAQ />
          {Space}
+         
+         <style jsx global>{`
+            main {
+               padding-left: 0.5rem;
+               padding-right: 0.5rem;
+            }
+         `}</style>
       </Layout>
    )
 }
