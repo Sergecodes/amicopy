@@ -101,3 +101,10 @@ export function getCtaBtn(
 
    return <Link href="/sign-up"><a>{GetStartedBtn}</a></Link>;
 }
+
+
+/** Check if object is empty */
+export function isEmptyObject(obj: {}) {
+   return obj && Object.keys(obj).length === 0 && Object.getPrototypeOf(obj) === Object.prototype;
+}
+

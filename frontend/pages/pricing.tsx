@@ -9,15 +9,14 @@ import Table from '../components/pricing/Table'
 import FAQ from '../components/pricing/FAQ'
 import { useContext } from 'react'
 import { DataContext } from './_app'
-import _ from 'lodash'
-// import SectionIntro from '../components/Layout/SectionIntro';
+import { isEmptyObject } from '../utils';
 
 
 const Pricing: NextPage = () => {
    const { user } = useContext(DataContext);
    const [billingType, setBillingType] = useState<BillingType>('month');
    let headingColor = useColorModeValue('rgba(0, 0, 0, 0.85)', 'slategray');
-   const loggedIn = !(_.isEmpty(user)), isPremium = false, isGold = false;
+   const loggedIn = !(isEmptyObject(user)), isPremium = false, isGold = false;
    const Space = <div style={{ minHeight: '4rem' }}></div>;
 
    const userPlanState: UserPlanState = (function () {

@@ -2,13 +2,11 @@ import { useState } from "react";
 import Input from "./Input";
 import FormExtra from './FormExtra';
 import FormAction from './FormAction';
-// import validator from 'validator';
 import { GrSend } from 'react-icons/gr';
 import { message, Result, Spin } from 'antd';
-import { isEmpty } from 'lodash';
-import isLength from 'validator/es/lib/isLength';
-import isEmail from 'validator/es/lib/isEmail';
-import isNumeric from 'validator/es/lib/isNumeric';
+import isLength from 'validator/lib/isLength';
+import isEmail from 'validator/lib/isEmail';
+import isNumeric from 'validator/lib/isNumeric';
 
 // type Field = {
 //    labelText: string;
@@ -90,7 +88,7 @@ const Signup: React.FC = () => {
          );
       }
 
-      if (isEmpty(errors)) {
+      if (errors.length === 0) {
          // Call api
          registerUser();
       } else {

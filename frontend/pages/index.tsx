@@ -7,13 +7,13 @@ import StatisticsSection from '../components/home/StatisticsSection'
 import Layout from '../components/Layout'
 import { useContext } from 'react'
 import { DataContext } from './_app'
-import _ from 'lodash'
+import { isEmptyObject } from '../utils'
 
 
 const Home: NextPage = () => {
   const { user } = useContext(DataContext);
   const Space = <div style={{ minHeight: '5rem' }}></div>;
-  const loggedIn = !(_.isEmpty(user));
+  const loggedIn = !(isEmptyObject(user));
 
   return (
     <Layout title="Home" loggedIn={loggedIn}>
